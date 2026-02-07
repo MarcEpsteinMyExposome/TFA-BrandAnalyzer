@@ -20,6 +20,10 @@ const config = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Force cheerio to use CJS slim build in jsdom test environment
+    // (the full CJS build pulls in undici which requires TextDecoder;
+    //  the slim build only includes load/contains/merge which is all we need)
+    '^cheerio$': '<rootDir>/node_modules/cheerio/dist/commonjs/slim.js',
   },
   testMatch: [
     '**/__tests__/**/*.[jt]s?(x)',
