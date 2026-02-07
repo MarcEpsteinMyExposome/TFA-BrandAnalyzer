@@ -1,0 +1,74 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import BrandReport from '@/components/report/BrandReport'
+import { createMockBrandReport } from '@/lib/testing/mockData'
+
+describe('BrandReport', () => {
+  const mockReport = createMockBrandReport()
+  const mockOnStartNew = jest.fn()
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('renders DualScoreHero with correct scores', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    // Consistency score 78 appears in DualScoreHero and ConsistencyPanel
+    expect(screen.getAllByText('78').length).toBeGreaterThanOrEqual(1)
+    // Completeness score 55 appears in DualScoreHero and CompletenessPanel
+    expect(screen.getAllByText('55').length).toBeGreaterThanOrEqual(1)
+    // "Consistency" and "Completeness" appear in DualScoreHero labels and ActionItemList source badges
+    expect(screen.getAllByText('Consistency').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Completeness').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders summary text', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByText(mockReport.summary)
+    ).toBeInTheDocument()
+  })
+
+  it('renders ConsistencyPanel', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('heading', { name: /brand consistency/i })
+    ).toBeInTheDocument()
+  })
+
+  it('renders CompletenessPanel', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('heading', { name: /brand completeness/i })
+    ).toBeInTheDocument()
+  })
+
+  it('renders ActionItemList', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('heading', { name: /prioritized action items/i })
+    ).toBeInTheDocument()
+  })
+
+  it('renders ReportActions with Start New Analysis button', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('button', { name: /start new analysis/i })
+    ).toBeInTheDocument()
+  })
+
+  it('renders Print Report button', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('button', { name: /print report/i })
+    ).toBeInTheDocument()
+  })
+
+  it('calls onStartNew when Start New Analysis is clicked', async () => {
+    const user = userEvent.setup()
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+
+    await user.click(screen.getByRole('button', { name: /start new analysis/i }))
+    expect(mockOnStartNew).toHaveBeenCalledTimes(1)
+  })
+})
