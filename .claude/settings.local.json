@@ -1,0 +1,49 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "Task(*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git init:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+      "Bash(npm run build)",
+      "Bash(npm install:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx jest)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(pwd:*)",
+      "Bash(dir:*)",
+      "Bash(where:*)",
+      "Bash(findstr:*)",
+      "Bash(mkdir:*)",
+      "Bash(tail:*)",
+      "Bash(type:*)",
+      "Bash(move:*)",
+      "Bash(copy:*)",
+      "Bash(powershell:*)",
+      "Bash(vercel --version:*)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  }
+}
