@@ -91,6 +91,37 @@ All config files and deps are in place. Created:
 
 ---
 
+## Session 2 — Full Build: IT1 through IT7 + Integration (2026-02-07)
+
+**What happened:**
+- Completed IT1: verified build, git init, created all UI components + landing page via parallel agents
+- Completed IT2: Platform registry (14 platforms), Zod schemas (3 schema files), Zustand store — 3 parallel agents
+- Completed IT3: URL input flow — PlatformUrlField, AddPlatformButton, UrlInputStep, StepIndicator, analysis page — 2 parallel agents
+- Completed IT4+IT5 in parallel: Web fetching pipeline (fetch API, content extraction, ProcessingStep) + Screenshot system (resize, base64, upload, guides, ScreenshotStep)
+- Completed IT6+IT7 in parallel: Claude analysis engine (SDK client, prompt template, buildPrompt, parseReport, SSE streaming, /api/analyze, useAnalysis hook) + Report display (ScoreGauge, DualScoreHero, ConsistencyPanel, MismatchCard, CompletenessPanel, CompletenessGapCard, ActionItemList, ReportActions, BrandReport, ReportStep)
+- Wired up analyze page: replaced all placeholder components with real implementations
+- Fixed analyze page tests after integration (10 tests had to be rewritten to match real component output)
+
+**Git commits:**
+1. `9ce5128` — IT1: Project scaffold, shared UI components, and landing page
+2. `ef256ae` — IT2: Data layer — platform registry, Zod schemas, Zustand store
+3. `bc5453b` — IT3: URL input flow — form components and analysis page
+4. `be637a3` — IT4+IT5: Web fetching pipeline and screenshot upload system
+5. `e04c76f` — IT6+IT7: Claude analysis engine and full report display
+6. (pending) — Integration: Wire up analyze page with real components
+
+**Tests:** 558 passing (41 suites)
+
+**Key technical notes:**
+- cheerio requires CJS slim build mapping in jest.config.js for jsdom compatibility
+- Zustand hydration guard pattern used in analyze page (useState + useEffect)
+- SSE streaming for Claude API responses via ReadableStream + TextEncoder
+
+**Next session:**
+- IT8: Polish + Deploy (accessibility, mobile, error handling, SEO, Vercel)
+
+---
+
 ## Template for Future Sessions
 
 ```

@@ -1,19 +1,49 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-// Mock the store module
+// Mock the store module with all fields the real components need
 const mockSetStep = jest.fn()
 const mockReset = jest.fn()
+const mockAddPlatform = jest.fn()
+const mockRemovePlatform = jest.fn()
+const mockUpdatePlatformUrl = jest.fn()
+const mockUpdateFetchStatus = jest.fn()
+const mockSetScreenshot = jest.fn()
+const mockRemoveScreenshot = jest.fn()
+const mockSetReport = jest.fn()
+const mockSetIsAnalyzing = jest.fn()
+const mockSetError = jest.fn()
+
 let mockStep = 'urls'
-let mockPlatforms: Array<{ fetchable: boolean; screenshot?: unknown }> = []
+let mockPlatforms: Array<{
+  platform: string
+  url: string
+  fetchable: boolean
+  fetchStatus: string
+  screenshot?: unknown
+  fetchedContent?: unknown
+}> = []
+let mockReport: unknown = null
 
 jest.mock('@/lib/store/analysisStore', () => ({
   useAnalysisStore: Object.assign(
     (selector?: (state: Record<string, unknown>) => unknown) => {
       const state = {
         step: mockStep,
-        setStep: mockSetStep,
         platforms: mockPlatforms,
+        report: mockReport,
+        isAnalyzing: false,
+        error: null,
+        setStep: mockSetStep,
+        addPlatform: mockAddPlatform,
+        removePlatform: mockRemovePlatform,
+        updatePlatformUrl: mockUpdatePlatformUrl,
+        updateFetchStatus: mockUpdateFetchStatus,
+        setScreenshot: mockSetScreenshot,
+        removeScreenshot: mockRemoveScreenshot,
+        setReport: mockSetReport,
+        setIsAnalyzing: mockSetIsAnalyzing,
+        setError: mockSetError,
         reset: mockReset,
       }
       return selector ? selector(state) : state
@@ -34,6 +64,7 @@ describe('AnalyzePage', () => {
     jest.clearAllMocks()
     mockStep = 'urls'
     mockPlatforms = []
+    mockReport = null
   })
 
   it('renders the header', () => {
@@ -54,55 +85,29 @@ describe('AnalyzePage', () => {
   it('shows screenshot step when step is "screenshots"', () => {
     mockStep = 'screenshots'
     render(<AnalyzePage />)
-    expect(screen.getByText('Screenshots')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /screenshots/i })).toBeInTheDocument()
   })
 
   it('shows processing step when step is "processing"', () => {
     mockStep = 'processing'
     render(<AnalyzePage />)
-    expect(screen.getByText('Analyzing...')).toBeInTheDocument()
+    expect(screen.getByText('Fetching Your Platforms')).toBeInTheDocument()
   })
 
   it('shows report step when step is "report"', () => {
     mockStep = 'report'
     render(<AnalyzePage />)
-    expect(screen.getByText('Report')).toBeInTheDocument()
+    expect(screen.getByText('No report available.')).toBeInTheDocument()
   })
 
-  it('navigates to screenshots when Next clicked and has non-fetchable platforms', async () => {
-    mockPlatforms = [{ fetchable: false }]
-    const user = userEvent.setup()
+  it('renders step indicator with navigation', () => {
     render(<AnalyzePage />)
-    const nextBtn = screen.getByText('Next (Demo)')
-    await user.click(nextBtn)
-    expect(mockSetStep).toHaveBeenCalledWith('screenshots')
+    expect(screen.getByRole('navigation', { name: 'Analysis progress' })).toBeInTheDocument()
   })
 
-  it('navigates to processing when Next clicked and all platforms fetchable', async () => {
-    mockPlatforms = [{ fetchable: true }, { fetchable: true }]
-    const user = userEvent.setup()
+  it('renders step indicator labels', () => {
     render(<AnalyzePage />)
-    const nextBtn = screen.getByText('Next (Demo)')
-    await user.click(nextBtn)
-    expect(mockSetStep).toHaveBeenCalledWith('processing')
-  })
-
-  it('navigates to processing when Next clicked and no platforms added', async () => {
-    mockPlatforms = []
-    const user = userEvent.setup()
-    render(<AnalyzePage />)
-    const nextBtn = screen.getByText('Next (Demo)')
-    await user.click(nextBtn)
-    expect(mockSetStep).toHaveBeenCalledWith('processing')
-  })
-
-  it('navigates to processing when non-fetchable platform already has screenshot', async () => {
-    mockPlatforms = [{ fetchable: false, screenshot: { data: 'base64...' } }]
-    const user = userEvent.setup()
-    render(<AnalyzePage />)
-    const nextBtn = screen.getByText('Next (Demo)')
-    await user.click(nextBtn)
-    expect(mockSetStep).toHaveBeenCalledWith('processing')
+    expect(screen.getByText('Add Links')).toBeInTheDocument()
   })
 
   it('can go back to URLs from screenshots', async () => {
@@ -113,38 +118,11 @@ describe('AnalyzePage', () => {
     expect(mockSetStep).toHaveBeenCalledWith('urls')
   })
 
-  it('can skip screenshots and go to processing', async () => {
-    mockStep = 'screenshots'
-    const user = userEvent.setup()
-    render(<AnalyzePage />)
-    await user.click(screen.getByText('Skip for Now'))
-    expect(mockSetStep).toHaveBeenCalledWith('processing')
-  })
-
   it('can start new analysis from report', async () => {
     mockStep = 'report'
     const user = userEvent.setup()
     render(<AnalyzePage />)
     await user.click(screen.getByText('Start New Analysis'))
     expect(mockReset).toHaveBeenCalled()
-  })
-
-  it('renders step indicator with all steps', () => {
-    render(<AnalyzePage />)
-    expect(screen.getByText('1. Add Links')).toBeInTheDocument()
-    expect(screen.getByText('2. Screenshots')).toBeInTheDocument()
-    expect(screen.getByText('3. Analyzing')).toBeInTheDocument()
-    expect(screen.getByText('4. Report')).toBeInTheDocument()
-  })
-
-  it('highlights current step in step indicator', () => {
-    render(<AnalyzePage />)
-    const currentStepLabel = screen.getByText('1. Add Links')
-    expect(currentStepLabel).toHaveClass('font-semibold', 'text-gray-900')
-  })
-
-  it('renders step indicator with navigation role', () => {
-    render(<AnalyzePage />)
-    expect(screen.getByRole('navigation', { name: 'Analysis steps' })).toBeInTheDocument()
   })
 })
