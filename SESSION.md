@@ -1,0 +1,109 @@
+# Session Notes
+
+**Project:** Tech For Artists - Brand Health Analyzer (Tool 3)
+**Purpose:** Track session-by-session progress for continuity across Claude instances
+
+---
+
+## Session 0 — Planning & Scaffolding (2026-02-07)
+
+**What happened:**
+- Brainstormed Tool 3 concept (Brand Consistency Analyzer → Brand Health Analyzer)
+- Built full implementation plan with 8 iterations, 30 tasks
+- Evolved from consistency-only to two-part analysis (consistency + completeness)
+- Key product decisions made:
+  - Hybrid fetch + screenshot approach (no credentials, no OAuth for v1)
+  - Sonnet 4.5 for runtime analysis, Opus for dev
+  - 4-step UI flow (URLs → Screenshots → Processing → Report)
+  - Max 10 platforms per analysis
+  - Ephemeral reports (no DB for v1)
+- Scaffolded documentation system (CLAUDE.md, TASKS.md, SESSION.md, ARCHITECTURE.md, DECISIONS.md, PATTERNS.md)
+- All done from Tool 2's Claude instance as a handoff
+
+**Decisions made:**
+- Two-part report: Consistency (6 categories) + Completeness (5 categories)
+- Completeness categories: platform coverage, purchase path, social proof, events/shows, artist story
+- Context-aware analysis (doesn't penalize for irrelevant gaps)
+- LinkedIn: try fetch first, fall back to screenshot
+- Future ideas captured: screen sharing via getDisplayMedia(), OAuth integration
+
+**Files created:**
+- Plan: `C:\Users\marce\.claude\plans\tool3-brand-consistency-analyzer.md`
+- All 6 documentation files in `C:\Users\marce\Documents\Projects\TFA-BrandAnalyzer\`
+
+**Next session:**
+- Start IT1: repo scaffold (create-next-app), install deps, copy UI components, build landing page
+- Run 4 parallel agents for IT1 tasks
+- Verify npm test + npm run build pass before moving to IT2
+
+---
+
+## Session 1 — IT1 Scaffold + Autonomous Build (2026-02-07)
+
+**What happened (in progress — instance restarting for permissions):**
+
+### IT1-01 Status: ~80% DONE
+All config files and deps are in place. Created:
+- `package.json` — all deps installed (next 16.1.1, react 19, tailwind 4, zustand 5, zod 3, @anthropic-ai/sdk, cheerio, @mozilla/readability, ai SDK, jest, RTL)
+- `tsconfig.json` — from Tool 2
+- `next.config.ts` — minimal starter
+- `jest.config.js` — from Tool 2, with path aliases
+- `jest.setup.js` — from Tool 2 (jest-dom, matchMedia mock, IntersectionObserver mock)
+- `eslint.config.mjs` — from Tool 2
+- `postcss.config.mjs` — Tailwind 4 postcss plugin
+- `.gitignore` — standard Next.js
+- `.env.example` — ANTHROPIC_API_KEY + NEXT_PUBLIC_SITE_URL
+- `.claude/settings.local.json` — permissions for autonomous work
+- `app/globals.css` — Tailwind import
+- `app/layout.tsx` — root layout with metadata, bg-gray-50, TFA branding
+- `app/page.tsx` — placeholder homepage
+- `npm install` completed successfully (791 packages)
+
+### Still needs for IT1-01:
+- `git init` (not yet run)
+- `npm run build` verification
+- Initial git commit
+
+### IT1-02 Status: PARTIAL (docs exist from Session 0)
+### IT1-03 Status: TODO — Copy 5 UI components from Tool 2 + write tests
+### IT1-04 Status: TODO — Build landing page with Header, Footer, hero, how-it-works, CTA
+
+**Tool 2 UI components ready to copy (already read into context):**
+- Button.tsx — primary/secondary/ghost variants, sm/md sizes
+- Card.tsx — white card with gray-200 border and shadow-sm
+- Input.tsx — with label, error, helperText, forwardRef
+- Select.tsx — with label, options array, error
+- SectionHeading.tsx — h2 title + optional description
+
+**User preferences for this session:**
+- Fully autonomous — make progress without blocking
+- Use defaults for all open questions
+- Stub out anything inaccessible, keep going
+- Parallel subagents for implementation, main agent stays in chat
+
+**Immediate next steps:**
+1. `git init` + `npm run build` to verify scaffold
+2. Launch parallel: IT1-03 (UI components) + IT1-04 (landing page + layout components)
+3. Integration: `npm test` + `npm run build`
+4. Git commit all IT1 work
+5. Proceed to IT2: Platform registry, Zod schemas, Zustand store (3 parallel)
+6. Continue through IT3-IT8 autonomously
+
+---
+
+## Template for Future Sessions
+
+```
+## Session N — [Description] (YYYY-MM-DD)
+
+**What happened:**
+- ...
+
+**Decisions made:**
+- ...
+
+**Tests:** X passing (Y suites)
+
+**Next session:**
+- ...
+```
