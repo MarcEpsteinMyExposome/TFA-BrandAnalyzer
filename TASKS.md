@@ -1,18 +1,23 @@
 # Tasks — Brand Health Analyzer
 
-## Current: IT8 (Polish + Deploy)
+## Remaining: IT8-05 (Vercel Deploy)
 
 | ID | Task | Status | Owner | Notes |
 |----|------|--------|-------|-------|
-| IT8-01 | Accessibility | TODO | — | Keyboard nav, focus, ARIA, contrast |
-| IT8-02 | Mobile responsive | TODO | — | All breakpoints, touch targets |
-| IT8-03 | Error handling + rate limiting | TODO | — | 404, error boundary, API errors, rate limit |
-| IT8-04 | SEO + meta | TODO | — | OG tags, favicon, robots, sitemap |
-| IT8-05 | Vercel deploy | TODO | — | GitHub, env vars, build, smoke test |
+| IT8-05 | Vercel deploy | TODO | User | GitHub push, env vars, build, smoke test |
 
 ---
 
 ## Completed Iterations
+
+### IT8 (Polish) — DONE (except deploy)
+
+| ID | Task | Status | Notes |
+|----|------|--------|-------|
+| IT8-01 | Accessibility | DONE | Skip link, focus mgmt, ARIA, keyboard nav, live regions, contrast |
+| IT8-02 | Mobile responsive | DONE | 44px touch targets, responsive stacking, truncation |
+| IT8-03 | Error handling + rate limiting | DONE | Rate limiter, retry backoff, Skeleton, error boundary |
+| IT8-04 | SEO + meta | DONE | OG tags, Twitter Card, favicon, robots.txt, sitemap, manifest |
 
 ### Integration — Analyze Page Wired Up (DONE)
 
