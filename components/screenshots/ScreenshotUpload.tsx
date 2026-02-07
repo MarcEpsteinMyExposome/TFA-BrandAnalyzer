@@ -161,7 +161,7 @@ export default function ScreenshotUpload({
           Drag &amp; drop a screenshot here
         </p>
         <p className="mt-1 text-xs text-gray-500">or click to browse</p>
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-gray-500">
           PNG, JPEG, or WebP (max 10MB)
         </p>
       </div>

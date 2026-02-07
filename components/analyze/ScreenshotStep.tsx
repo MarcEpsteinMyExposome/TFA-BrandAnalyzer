@@ -99,7 +99,7 @@ export default function ScreenshotStep({ onNext, onBack }: ScreenshotStepProps) 
                   onClick={() => {
                     // Skip is a no-op — just leave screenshot undefined
                   }}
-                  className="text-sm text-gray-500 underline hover:text-gray-700"
+                  className="text-sm text-gray-500 underline hover:text-gray-700 min-h-[44px] py-2"
                 >
                   Skip this platform
                 </button>

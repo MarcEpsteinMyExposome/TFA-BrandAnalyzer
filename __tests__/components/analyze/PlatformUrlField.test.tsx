@@ -76,7 +76,7 @@ describe('PlatformUrlField', () => {
         fetchable={true}
       />
     )
-    expect(screen.getByText('Auto-fetch')).toBeInTheDocument()
+    expect(screen.getAllByText('Auto-fetch').length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows validation error for invalid URL after blur', async () => {

@@ -18,7 +18,7 @@ function formatCategory(category: string): string {
 export default function CompletenessPanel({ completeness }: CompletenessPanelProps) {
   return (
     <section aria-labelledby="completeness-heading">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h2 id="completeness-heading" className="text-xl font-semibold text-gray-900">
           Part 2: Brand Completeness
         </h2>

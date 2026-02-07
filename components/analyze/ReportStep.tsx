@@ -13,8 +13,8 @@ export default function ReportStep({ onStartNew }: ReportStepProps) {
 
   if (!report) {
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 mb-4">No report available.</p>
+      <div className="text-center py-12" aria-live="polite">
+        <p className="text-gray-600 mb-4">No report available.</p>
         <Button variant="primary" onClick={onStartNew}>
           Start New Analysis
         </Button>

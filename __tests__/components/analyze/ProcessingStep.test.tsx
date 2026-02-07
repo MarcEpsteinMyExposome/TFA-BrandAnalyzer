@@ -123,7 +123,7 @@ describe('ProcessingStep', () => {
     })
     render(<ProcessingStep onComplete={jest.fn()} />)
 
-    expect(screen.getByText('HTTP 403: Forbidden')).toBeInTheDocument()
+    expect(screen.getAllByText('HTTP 403: Forbidden').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByRole('button', { name: /retry linkedin/i })).toBeInTheDocument()
     expect(screen.getByLabelText('Error')).toBeInTheDocument()
   })

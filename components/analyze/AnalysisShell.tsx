@@ -22,7 +22,7 @@ export default function AnalysisShell({ children }: AnalysisShellProps) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
+        <main id="main-content" className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div
               className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3"
@@ -40,7 +40,7 @@ export default function AnalysisShell({ children }: AnalysisShellProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="max-w-3xl mx-auto px-4 py-8">
           <StepIndicator currentStep={step} />
           <div className="mt-6">{children}</div>

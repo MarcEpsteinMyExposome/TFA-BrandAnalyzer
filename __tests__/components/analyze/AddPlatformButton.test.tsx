@@ -2,6 +2,9 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AddPlatformButton from '@/components/analyze/AddPlatformButton'
 
+// jsdom does not implement scrollIntoView
+Element.prototype.scrollIntoView = jest.fn()
+
 describe('AddPlatformButton', () => {
   const defaultProps = {
     onAdd: jest.fn(),

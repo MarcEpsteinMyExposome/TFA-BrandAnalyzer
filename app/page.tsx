@@ -49,7 +49,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Hero Section */}
         <section className="bg-white py-16 sm:py-24">
           <div className="max-w-3xl mx-auto px-4 text-center">
@@ -63,7 +63,7 @@ export default function HomePage() {
             </p>
             <a
               href="/analyze"
-              className="bg-gray-900 text-white rounded-md px-6 py-3 font-medium hover:bg-gray-800 inline-block mt-8"
+              className="bg-gray-900 text-white rounded-md px-6 py-3 font-medium hover:bg-gray-800 inline-flex items-center min-h-[44px] mt-8"
             >
               Analyze My Brand
             </a>
@@ -82,7 +82,7 @@ export default function HomePage() {
                   key={step.number}
                   className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm"
                 >
-                  <p className="text-sm font-medium text-gray-400 mb-2">
+                  <p className="text-sm font-medium text-gray-500 mb-2">
                     {step.number}
                   </p>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -129,7 +129,7 @@ export default function HomePage() {
             </p>
             <a
               href="/analyze"
-              className="bg-gray-900 text-white rounded-md px-6 py-3 font-medium hover:bg-gray-800 inline-block mt-6"
+              className="bg-gray-900 text-white rounded-md px-6 py-3 font-medium hover:bg-gray-800 inline-flex items-center min-h-[44px] mt-6"
             >
               Get Started
             </a>

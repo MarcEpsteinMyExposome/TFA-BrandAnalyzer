@@ -42,14 +42,16 @@ describe('Button', () => {
     render(<Button size="sm">Small</Button>)
     const button = screen.getByRole('button', { name: 'Small' })
     expect(button.className).toContain('px-3')
-    expect(button.className).toContain('py-1.5')
+    expect(button.className).toContain('py-2')
+    expect(button.className).toContain('min-h-[44px]')
   })
 
   it('applies md size styles by default', () => {
     render(<Button>Medium</Button>)
     const button = screen.getByRole('button', { name: 'Medium' })
     expect(button.className).toContain('px-4')
-    expect(button.className).toContain('py-2')
+    expect(button.className).toContain('py-2.5')
+    expect(button.className).toContain('min-h-[44px]')
   })
 
   it('is disabled when disabled prop is set', () => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StepIndicator from '@/components/analyze/StepIndicator'
@@ -18,13 +18,28 @@ export default function AnalyzePage() {
   const step = useAnalysisStore((state) => state.step)
   const setStep = useAnalysisStore((state) => state.setStep)
   const platforms = useAnalysisStore((state) => state.platforms)
+  const stepContentRef = useRef<HTMLDivElement>(null)
+  const isInitialRender = useRef(true)
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false
+      return
+    }
+    if (!hydrated) return
+    const heading = stepContentRef.current?.querySelector('h2')
+    if (heading) {
+      heading.setAttribute('tabindex', '-1')
+      heading.focus()
+    }
+  }, [step, hydrated])
 
   if (!hydrated) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-gray-400">Loading...</div>
+        <main id="main-content" className="flex-1 flex items-center justify-center">
+          <div className="text-gray-600">Loading...</div>
         </main>
         <Footer />
       </div>
@@ -60,27 +75,29 @@ export default function AnalyzePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="mb-8">
             <StepIndicator currentStep={step} />
           </div>
 
-          {step === 'urls' && (
-            <UrlInputStep onNext={handleNextFromUrls} />
-          )}
-          {step === 'screenshots' && (
-            <ScreenshotStep
-              onNext={handleNextFromScreenshots}
-              onBack={handleBackToUrls}
-            />
-          )}
-          {step === 'processing' && (
-            <ProcessingStep onComplete={handleProcessingComplete} />
-          )}
-          {step === 'report' && (
-            <ReportStep onStartNew={handleStartNew} />
-          )}
+          <div ref={stepContentRef}>
+            {step === 'urls' && (
+              <UrlInputStep onNext={handleNextFromUrls} />
+            )}
+            {step === 'screenshots' && (
+              <ScreenshotStep
+                onNext={handleNextFromScreenshots}
+                onBack={handleBackToUrls}
+              />
+            )}
+            {step === 'processing' && (
+              <ProcessingStep onComplete={handleProcessingComplete} />
+            )}
+            {step === 'report' && (
+              <ReportStep onStartNew={handleStartNew} />
+            )}
+          </div>
         </div>
       </main>
       <Footer />

@@ -14,7 +14,7 @@ interface BrandReportProps {
 
 export default function BrandReport({ report, onStartNew }: BrandReportProps) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" aria-live="polite">
       <DualScoreHero
         consistencyScore={report.consistency.overallScore}
         completenessScore={report.completeness.overallScore}

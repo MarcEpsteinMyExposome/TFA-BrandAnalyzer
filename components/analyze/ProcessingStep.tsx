@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { useAnalysisStore } from '@/lib/store/analysisStore'
 import { getPlatform } from '@/lib/platforms/registry'
 import Button from '@/components/ui/Button'
@@ -13,6 +13,16 @@ interface ProcessingStepProps {
 export default function ProcessingStep({ onComplete }: ProcessingStepProps) {
   const platforms = useAnalysisStore((state) => state.platforms)
   const updateFetchStatus = useAnalysisStore((state) => state.updateFetchStatus)
+  const [retryCooldowns, setRetryCooldowns] = useState<Record<number, number>>({})
+  const cooldownTimers = useRef<Record<number, ReturnType<typeof setInterval>>>({})
+  const retryCountRef = useRef<Record<number, number>>({})
+
+  useEffect(() => {
+    const timers = cooldownTimers.current
+    return () => {
+      Object.values(timers).forEach(clearInterval)
+    }
+  }, [])
 
   const fetchPlatform = useCallback(
     async (index: number, url: string, platformId: string) => {
@@ -51,6 +61,30 @@ export default function ProcessingStep({ onComplete }: ProcessingStepProps) {
   }, [])
 
   const handleRetry = (index: number, url: string, platformId: string) => {
+    const attempt = (retryCountRef.current[index] || 0) + 1
+    retryCountRef.current[index] = attempt
+
+    const cooldownSeconds = Math.min(Math.pow(2, attempt), 8)
+    setRetryCooldowns((prev) => ({ ...prev, [index]: cooldownSeconds }))
+
+    if (cooldownTimers.current[index]) {
+      clearInterval(cooldownTimers.current[index])
+    }
+
+    cooldownTimers.current[index] = setInterval(() => {
+      setRetryCooldowns((prev) => {
+        const remaining = (prev[index] || 0) - 1
+        if (remaining <= 0) {
+          clearInterval(cooldownTimers.current[index])
+          delete cooldownTimers.current[index]
+          const updated = { ...prev }
+          delete updated[index]
+          return updated
+        }
+        return { ...prev, [index]: remaining }
+      })
+    }, 1000)
+
     fetchPlatform(index, url, platformId)
   }
 
@@ -69,27 +103,27 @@ export default function ProcessingStep({ onComplete }: ProcessingStepProps) {
         We are retrieving content from your public pages. This may take a moment.
       </p>
 
-      <div className="space-y-3" role="list" aria-label="Platform fetch status">
+      <div className="space-y-3" role="list" aria-label="Platform fetch status" aria-live="polite">
         {platforms.map((entry, index) => {
           const config = getPlatform(entry.platform)
 
           return (
             <Card key={`${entry.platform}-${index}`} className="!p-4">
               <div
-                className="flex items-center justify-between"
+                className="flex items-start justify-between gap-2 sm:items-center"
                 role="listitem"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <StatusIcon status={entry.fetchable ? entry.fetchStatus : 'skipped'} />
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-gray-900">{config.name}</p>
-                    <p className="text-xs text-gray-500 truncate max-w-xs">
+                    <p className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-xs">
                       {entry.url}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {!entry.fetchable && (
                     <span className="text-xs text-gray-500">
                       {entry.screenshot ? 'Screenshot provided' : 'Skipped'}
@@ -98,17 +132,23 @@ export default function ProcessingStep({ onComplete }: ProcessingStepProps) {
 
                   {entry.fetchable && entry.fetchStatus === 'error' && (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-red-600">
+                      <span className="text-xs text-red-600 hidden sm:inline">
                         {entry.fetchError || 'Fetch failed'}
                       </span>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleRetry(index, entry.url, entry.platform)}
-                        aria-label={`Retry ${config.name}`}
-                      >
-                        Retry
-                      </Button>
+                      {retryCooldowns[index] ? (
+                        <span className="text-xs text-gray-500" aria-live="polite">
+                          Retrying in {retryCooldowns[index]}s...
+                        </span>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleRetry(index, entry.url, entry.platform)}
+                          aria-label={`Retry ${config.name}`}
+                        >
+                          Retry
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -121,6 +161,13 @@ export default function ProcessingStep({ onComplete }: ProcessingStepProps) {
                   )}
                 </div>
               </div>
+
+              {/* Show error message below on mobile */}
+              {entry.fetchable && entry.fetchStatus === 'error' && (
+                <p className="text-xs text-red-600 mt-2 sm:hidden">
+                  {entry.fetchError || 'Fetch failed'}
+                </p>
+              )}
             </Card>
           )
         })}
