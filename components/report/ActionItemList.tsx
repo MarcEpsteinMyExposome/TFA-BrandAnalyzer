@@ -6,22 +6,24 @@ interface ActionItemListProps {
   actionItems: ActionItem[]
 }
 
-const impactStyles = {
+const impactStyles: Record<string, string> = {
   high: 'bg-red-100 text-red-700',
   medium: 'bg-yellow-100 text-yellow-700',
   low: 'bg-green-100 text-green-700',
 }
 
-const effortStyles = {
+const effortStyles: Record<string, string> = {
   quick: 'bg-green-100 text-green-700',
   moderate: 'bg-yellow-100 text-yellow-700',
   significant: 'bg-red-100 text-red-700',
 }
 
-const sourceStyles = {
+const sourceStyles: Record<string, string> = {
   consistency: 'bg-blue-100 text-blue-700',
   completeness: 'bg-purple-100 text-purple-700',
 }
+
+const defaultStyle = 'bg-gray-100 text-gray-700'
 
 export default function ActionItemList({ actionItems }: ActionItemListProps) {
   const sorted = [...actionItems].sort((a, b) => a.priority - b.priority)
@@ -51,17 +53,17 @@ export default function ActionItemList({ actionItems }: ActionItemListProps) {
                     {item.platform}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${sourceStyles[item.source]}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${sourceStyles[item.source] || defaultStyle}`}
                   >
                     {item.source === 'consistency' ? 'Consistency' : 'Completeness'}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${impactStyles[item.impact]}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${impactStyles[item.impact] || defaultStyle}`}
                   >
                     {item.impact} impact
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${effortStyles[item.effort]}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${effortStyles[item.effort] || defaultStyle}`}
                   >
                     {item.effort}
                   </span>

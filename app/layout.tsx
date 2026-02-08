@@ -4,23 +4,23 @@ import './globals.css'
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://brandhealth.techforartists.com'
 
 export const metadata: Metadata = {
-  title: 'Brand Health Analyzer | Tech For Artists',
+  title: 'Brand Health Analyzer | Technology for Artists',
   description:
     'Free AI-powered brand health analysis for artists. Check your online presence for consistency and completeness across all platforms.',
   icons: {
     icon: '/favicon.svg',
   },
   openGraph: {
-    title: 'Brand Health Analyzer | Tech For Artists',
+    title: 'Brand Health Analyzer | Technology for Artists',
     description:
       'Free AI-powered brand health analysis for artists. Check your online presence for consistency and completeness across all platforms.',
     type: 'website',
-    siteName: 'Tech For Artists',
+    siteName: 'Technology for Artists',
     url: siteUrl,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Brand Health Analyzer | Tech For Artists',
+    title: 'Brand Health Analyzer | Technology for Artists',
     description:
       'Free AI-powered brand health analysis for artists. Check your online presence for consistency and completeness across all platforms.',
   },

@@ -163,4 +163,68 @@
 
 ---
 
+## ADR-011: Loosened Zod Schema for Claude Output
+
+**Date:** 2026-02-08
+**Status:** Accepted
+
+**Decision:** Changed report schema from strict enums (e.g., `z.enum(['name', 'bio', ...])`) to `z.string()` for all Claude-generated fields. Added `.passthrough()` on complex objects.
+
+**Rationale:**
+- Claude's output doesn't always match strict enum values exactly (e.g., returns `'completeness'` instead of `'platformCoverage'`)
+- Strict validation caused analysis failures even when the report content was valid and useful
+- UI handles unknown values with fallback styles via `Record<string, string>` + `defaultStyle`
+
+**Consequence:** TypeScript loses some type safety for these fields. UI components must handle unknown string values gracefully with fallback display logic.
+
+---
+
+## ADR-012: Tuning Notes Layer
+
+**Date:** 2026-02-08
+**Status:** Accepted
+
+**Decision:** Created `lib/analysis/tuning-notes.ts` as a user-editable file that gets appended to Claude's system prompt, allowing non-developer tweaking of analysis behavior.
+
+**Rationale:**
+- The report structure (JSON schema) is fixed in code, but *how* Claude scores and comments is guided by the system prompt
+- A dedicated file for tuning guidance is easier to iterate on than editing the main prompt template
+- User can adjust scoring rubric, common mistakes, tone without touching core code
+
+**Consequence:** Changes to tuning notes affect analysis output without code changes. No tests needed for content — it's just a string constant.
+
+---
+
+## ADR-013: Fire-and-Forget Email via Formspree
+
+**Date:** 2026-02-08
+**Status:** Accepted
+
+**Decision:** Auto-email the report to TFA when analysis completes, using Formspree (same as Tool 2). Don't block the report display on email success/failure.
+
+**Rationale:**
+- Email delivery is a nice-to-have, not a blocker for the user seeing their report
+- Formspree is already used in Tool 2, proven pattern
+- Fire-and-forget keeps the UX snappy — user sees report immediately
+
+**Consequence:** Email failures are logged to console but don't surface to the user. Can add user-facing feedback later if needed.
+
+---
+
+## ADR-014: Multi-Screenshot Per Platform
+
+**Date:** 2026-02-08
+**Status:** Accepted
+
+**Decision:** Changed from single `screenshot` to `screenshots: UploadedImage[]` array per platform.
+
+**Rationale:**
+- Facebook alone needs cover photo, profile, about page, posts — one screenshot is insufficient
+- Artists may want to capture different aspects of any platform
+- Array with individual remove buttons gives full control
+
+**Consequence:** Schema change propagated through entire stack (store, UI, prompt builder, tests). buildPrompt labels each screenshot: "[Screenshot 1 of 3 for Facebook]".
+
+---
+
 **Note:** Add new ADRs as architectural decisions are made during development.

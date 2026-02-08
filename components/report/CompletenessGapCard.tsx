@@ -6,7 +6,7 @@ interface CompletenessGapCardProps {
   gap: CompletenessGap
 }
 
-const severityStyles = {
+const severityStyles: Record<string, { badge: string; border: string }> = {
   high: {
     badge: 'bg-red-100 text-red-700',
     border: 'border-l-red-500',
@@ -21,6 +21,8 @@ const severityStyles = {
   },
 }
 
+const defaultSeverityStyle = { badge: 'bg-gray-100 text-gray-700', border: 'border-l-gray-400' }
+
 function formatCategory(category: string): string {
   return category
     .replace(/([A-Z])/g, ' $1')
@@ -29,7 +31,7 @@ function formatCategory(category: string): string {
 }
 
 export default function CompletenessGapCard({ gap }: CompletenessGapCardProps) {
-  const styles = severityStyles[gap.severity]
+  const styles = severityStyles[gap.severity] || defaultSeverityStyle
 
   return (
     <div

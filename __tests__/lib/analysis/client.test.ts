@@ -75,6 +75,6 @@ describe('client', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { MAX_TOKENS } = require('@/lib/analysis/client')
 
-    expect(MAX_TOKENS).toBe(8192)
+    expect(MAX_TOKENS).toBe(16384)
   })
 })

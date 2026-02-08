@@ -2,8 +2,8 @@
 
 ## Project Overview
 
-**Project:** Tech For Artists - Brand Health Analyzer (Tool 3)
-**Status:** Pre-development (scaffolding phase)
+**Project:** Technology for Artists - Brand Health Analyzer (Tool 3)
+**Status:** Feature-complete (v0.5) — pending Vercel deploy
 **Full Plan:** `C:\Users\marce\.claude\plans\tool3-brand-consistency-analyzer.md` — **READ THIS FIRST**
 **Predecessor:** Tool 2 (Tech Intake Questionnaire) at `C:\Users\marce\Documents\Projects\TechForArtistsQuestionaire`
 

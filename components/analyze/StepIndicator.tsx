@@ -4,6 +4,7 @@ type StepName = 'urls' | 'screenshots' | 'processing' | 'report'
 
 interface StepIndicatorProps {
   currentStep: StepName
+  onStepClick?: (step: StepName) => void
 }
 
 const STEPS: { key: StepName; number: number; label: string }[] = [
@@ -18,7 +19,7 @@ function stepToNumber(step: StepName): number {
   return found ? found.number : 1
 }
 
-export default function StepIndicator({ currentStep }: StepIndicatorProps) {
+export default function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) {
   const currentNumber = stepToNumber(currentStep)
 
   return (
@@ -27,7 +28,39 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
         {STEPS.map((step, index) => {
           const isCompleted = step.number < currentNumber
           const isCurrent = step.number === currentNumber
-          const isFuture = step.number > currentNumber
+
+          const circleContent = isCompleted ? (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          ) : (
+            step.number
+          )
+
+          const ariaLabel = isCompleted
+            ? `Step ${step.number}: ${step.label} (completed)`
+            : isCurrent
+              ? `Step ${step.number}: ${step.label} (current)`
+              : `Step ${step.number}: ${step.label}`
+
+          const circleClassName = `flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium border-2 transition-colors ${
+            isCompleted
+              ? 'bg-gray-900 border-gray-900 text-white'
+              : isCurrent
+                ? 'border-gray-900 text-gray-900 bg-white'
+                : 'border-gray-300 text-gray-400 bg-white'
+          }`
 
           return (
             <li
@@ -35,43 +68,25 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
               className="flex items-center flex-1 last:flex-none"
             >
               <div className="flex flex-col items-center">
-                {/* Circle */}
-                <div
-                  aria-label={
-                    isCompleted
-                      ? `Step ${step.number}: ${step.label} (completed)`
-                      : isCurrent
-                        ? `Step ${step.number}: ${step.label} (current)`
-                        : `Step ${step.number}: ${step.label}`
-                  }
-                  aria-current={isCurrent ? 'step' : undefined}
-                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium border-2 transition-colors ${
-                    isCompleted
-                      ? 'bg-gray-900 border-gray-900 text-white'
-                      : isCurrent
-                        ? 'border-gray-900 text-gray-900 bg-white'
-                        : 'border-gray-300 text-gray-400 bg-white'
-                  }`}
-                >
-                  {isCompleted ? (
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  ) : (
-                    step.number
-                  )}
-                </div>
+                {/* Circle — clickable for completed steps */}
+                {isCompleted && onStepClick ? (
+                  <button
+                    type="button"
+                    aria-label={`Go back to Step ${step.number}: ${step.label}`}
+                    onClick={() => onStepClick(step.key)}
+                    className={`${circleClassName} cursor-pointer hover:bg-gray-700 hover:border-gray-700`}
+                  >
+                    {circleContent}
+                  </button>
+                ) : (
+                  <div
+                    aria-label={ariaLabel}
+                    aria-current={isCurrent ? 'step' : undefined}
+                    className={circleClassName}
+                  >
+                    {circleContent}
+                  </div>
+                )}
 
                 {/* Label (hidden on mobile) */}
                 <span

@@ -57,9 +57,9 @@ describe('consistencyScoreSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects an invalid category', () => {
-    const result = consistencyScoreSchema.safeParse({ ...validScore, category: 'invalid' })
-    expect(result.success).toBe(false)
+  it('accepts any string as category (loosened from enum)', () => {
+    const result = consistencyScoreSchema.safeParse({ ...validScore, category: 'anything' })
+    expect(result.success).toBe(true)
   })
 
   it('accepts an empty platforms array', () => {
@@ -104,14 +104,14 @@ describe('mismatchSchema', () => {
     }
   )
 
-  it('rejects an invalid type', () => {
+  it('accepts any string as type (loosened from enum)', () => {
     const result = mismatchSchema.safeParse({ ...validMismatch, type: 'audio' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects an invalid severity', () => {
+  it('accepts any string as severity (loosened from enum)', () => {
     const result = mismatchSchema.safeParse({ ...validMismatch, severity: 'critical' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
   it('rejects missing recommendation', () => {
@@ -219,20 +219,23 @@ describe('completenessGapSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('rejects an invalid severity', () => {
+  it('accepts any string as severity (loosened from enum)', () => {
     const result = completenessGapSchema.safeParse({ ...validGap, severity: 'urgent' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects an invalid category', () => {
+  it('accepts any string as category (loosened from enum)', () => {
     const result = completenessGapSchema.safeParse({ ...validGap, category: 'seo' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects missing platforms', () => {
+  it('defaults to empty array when platforms is missing', () => {
     const { platforms, ...noPlatforms } = validGap
     const result = completenessGapSchema.safeParse(noPlatforms)
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.platforms).toEqual([])
+    }
   })
 })
 
@@ -266,34 +269,34 @@ describe('actionItemSchema', () => {
     expect(result.success).toBe(true)
   })
 
-  it('rejects an invalid source', () => {
+  it('accepts any string as source (loosened from enum)', () => {
     const result = actionItemSchema.safeParse({ ...validAction, source: 'other' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects an invalid impact', () => {
+  it('accepts any string as impact (loosened from enum)', () => {
     const result = actionItemSchema.safeParse({ ...validAction, impact: 'critical' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects an invalid effort', () => {
+  it('accepts any string as effort (loosened from enum)', () => {
     const result = actionItemSchema.safeParse({ ...validAction, effort: 'massive' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects a zero priority', () => {
+  it('accepts zero priority (loosened from positive int)', () => {
     const result = actionItemSchema.safeParse({ ...validAction, priority: 0 })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects a negative priority', () => {
+  it('accepts negative priority (loosened from positive int)', () => {
     const result = actionItemSchema.safeParse({ ...validAction, priority: -1 })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects a non-integer priority', () => {
+  it('accepts non-integer priority (loosened from int)', () => {
     const result = actionItemSchema.safeParse({ ...validAction, priority: 1.5 })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
   it('rejects missing action string', () => {
@@ -442,7 +445,7 @@ describe('brandReportSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects invalid nested consistency category', () => {
+  it('accepts any string for nested consistency category (loosened from enum)', () => {
     const result = brandReportSchema.safeParse({
       ...validReport,
       consistency: {
@@ -457,10 +460,10 @@ describe('brandReportSchema', () => {
         ],
       },
     })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects invalid nested mismatch severity', () => {
+  it('accepts any string for nested mismatch severity (loosened from enum)', () => {
     const result = brandReportSchema.safeParse({
       ...validReport,
       consistency: {
@@ -476,10 +479,10 @@ describe('brandReportSchema', () => {
         ],
       },
     })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects invalid nested action item source', () => {
+  it('accepts any string for nested action item source (loosened from enum)', () => {
     const result = brandReportSchema.safeParse({
       ...validReport,
       actionItems: [
@@ -493,6 +496,6 @@ describe('brandReportSchema', () => {
         },
       ],
     })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 })

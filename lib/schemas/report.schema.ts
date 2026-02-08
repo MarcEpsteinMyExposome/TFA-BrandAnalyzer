@@ -8,7 +8,7 @@ export const consistencyCategorySchema = z.enum([
 export type ConsistencyCategory = z.infer<typeof consistencyCategorySchema>
 
 export const consistencyScoreSchema = z.object({
-  category: consistencyCategorySchema,
+  category: z.string(), // Prefer enum values but accept anything Claude returns
   score: z.number().min(0).max(100),
   summary: z.string(),
   platforms: z.array(z.string()),
@@ -17,12 +17,12 @@ export const consistencyScoreSchema = z.object({
 export type ConsistencyScore = z.infer<typeof consistencyScoreSchema>
 
 export const mismatchSchema = z.object({
-  type: z.enum(['text', 'visual', 'link', 'contact']),
-  severity: z.enum(['high', 'medium', 'low']),
+  type: z.string(), // Prefer enum values but accept anything Claude returns
+  severity: z.string(),
   description: z.string(),
-  platforms: z.array(z.string()),
+  platforms: z.array(z.string()).default([]),
   recommendation: z.string(),
-})
+}).passthrough()
 
 export type Mismatch = z.infer<typeof mismatchSchema>
 
@@ -34,7 +34,7 @@ export const completenessCategorySchema = z.enum([
 export type CompletenessCategory = z.infer<typeof completenessCategorySchema>
 
 export const completenessScoreSchema = z.object({
-  category: completenessCategorySchema,
+  category: z.string(), // Prefer enum values but accept anything Claude returns
   score: z.number().min(0).max(100),
   summary: z.string(),
   details: z.string(),
@@ -43,25 +43,25 @@ export const completenessScoreSchema = z.object({
 export type CompletenessScore = z.infer<typeof completenessScoreSchema>
 
 export const completenessGapSchema = z.object({
-  category: completenessCategorySchema,
-  severity: z.enum(['high', 'medium', 'low']),
+  category: z.string(), // Prefer enum values but accept anything Claude returns
+  severity: z.string(),
   description: z.string(),
-  platforms: z.array(z.string()),
+  platforms: z.array(z.string()).default([]),
   recommendation: z.string(),
   examples: z.array(z.string()).optional(),
-})
+}).passthrough()
 
 export type CompletenessGap = z.infer<typeof completenessGapSchema>
 
 // Action items
 export const actionItemSchema = z.object({
-  priority: z.number().int().positive(),
-  source: z.enum(['consistency', 'completeness']),
+  priority: z.number(),
+  source: z.string(),
   action: z.string(),
   platform: z.string(),
-  impact: z.enum(['high', 'medium', 'low']),
-  effort: z.enum(['quick', 'moderate', 'significant']),
-})
+  impact: z.string(),
+  effort: z.string(),
+}).passthrough()
 
 export type ActionItem = z.infer<typeof actionItemSchema>
 

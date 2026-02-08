@@ -6,7 +6,7 @@ interface MismatchCardProps {
   mismatch: Mismatch
 }
 
-const severityStyles = {
+const severityStyles: Record<string, { badge: string; border: string }> = {
   high: {
     badge: 'bg-red-100 text-red-700',
     border: 'border-l-red-500',
@@ -21,12 +21,14 @@ const severityStyles = {
   },
 }
 
+const defaultSeverityStyle = { badge: 'bg-gray-100 text-gray-700', border: 'border-l-gray-400' }
+
 function formatMismatchType(type: string): string {
   return type.charAt(0).toUpperCase() + type.slice(1)
 }
 
 export default function MismatchCard({ mismatch }: MismatchCardProps) {
-  const styles = severityStyles[mismatch.severity]
+  const styles = severityStyles[mismatch.severity] || defaultSeverityStyle
 
   return (
     <div

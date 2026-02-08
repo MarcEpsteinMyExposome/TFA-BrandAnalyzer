@@ -166,8 +166,7 @@ export async function POST(request: NextRequest) {
               encoder.encode(
                 `data: ${JSON.stringify({
                   type: 'error',
-                  error: 'The AI response could not be parsed into a report. Please try again.',
-                  details: (parseError as Error).message,
+                  error: `Report parsing failed: ${(parseError as Error).message}`,
                 })}\n\n`
               )
             )

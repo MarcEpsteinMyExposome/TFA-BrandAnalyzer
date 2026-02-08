@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import type { PlatformEntry } from '@/lib/schemas/platform.schema'
 import type { BrandReport } from '@/lib/schemas/report.schema'
 import { useAnalysisStore } from '@/lib/store/analysisStore'
+import { sendReportEmail } from '@/lib/email/sendReport'
 
 interface UseAnalysisReturn {
   analyze: (platforms: PlatformEntry[]) => Promise<void>
@@ -65,6 +66,12 @@ export function useAnalysis(): UseAnalysisReturn {
               } else if (parsed.type === 'report') {
                 setReport(parsed.report)
                 useAnalysisStore.getState().setReport(parsed.report)
+                // Fire-and-forget: email report to TFA
+                sendReportEmail(parsed.report, platforms).then((result) => {
+                  if (!result.success) {
+                    console.error('Failed to email report:', result.error)
+                  }
+                })
               } else if (parsed.type === 'error') {
                 setError(parsed.error)
                 useAnalysisStore.getState().setError(parsed.error)

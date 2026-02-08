@@ -1,7 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import BrandReport from '@/components/report/BrandReport'
-import { createMockBrandReport } from '@/lib/testing/mockData'
+import { useAnalysisStore } from '@/lib/store/analysisStore'
+import {
+  createMockBrandReport,
+  createMockPlatformEntry,
+  createMockExtractedContent,
+} from '@/lib/testing/mockData'
 
 describe('BrandReport', () => {
   const mockReport = createMockBrandReport()
@@ -9,6 +14,10 @@ describe('BrandReport', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    useAnalysisStore.getState().reset()
+    // Populate store with platforms so ReportSourcesSection renders
+    useAnalysisStore.getState().addPlatform('website', 'https://example.com', true)
+    useAnalysisStore.getState().addPlatform('instagram', 'https://instagram.com/artist', false)
   })
 
   it('renders DualScoreHero with correct scores', () => {
@@ -70,5 +79,18 @@ describe('BrandReport', () => {
 
     await user.click(screen.getByRole('button', { name: /start new analysis/i }))
     expect(mockOnStartNew).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders ReportSourcesSection with Data Sources heading', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('heading', { name: /data sources/i })
+    ).toBeInTheDocument()
+  })
+
+  it('renders platform URLs from the store in the sources section', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(screen.getByText('https://example.com')).toBeInTheDocument()
+    expect(screen.getByText('https://instagram.com/artist')).toBeInTheDocument()
   })
 })

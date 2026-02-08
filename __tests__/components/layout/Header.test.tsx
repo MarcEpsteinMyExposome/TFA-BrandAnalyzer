@@ -2,14 +2,14 @@ import { render, screen } from '@testing-library/react'
 import Header from '@/components/layout/Header'
 
 describe('Header', () => {
-  it('renders "Tech For Artists" text', () => {
+  it('renders "Technology for Artists" text', () => {
     render(<Header />)
-    expect(screen.getByText('Tech For Artists')).toBeInTheDocument()
+    expect(screen.getByText('Technology for Artists')).toBeInTheDocument()
   })
 
   it('has a link to the home page', () => {
     render(<Header />)
-    const homeLink = screen.getByRole('link', { name: 'Tech For Artists' })
+    const homeLink = screen.getByRole('link', { name: 'Technology for Artists' })
     expect(homeLink).toHaveAttribute('href', '/')
   })
 

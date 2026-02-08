@@ -42,7 +42,7 @@ export function parseReport(responseText: string): BrandReport {
   const result = brandReportSchema.safeParse(parsed)
   if (!result.success) {
     throw new Error(
-      `Claude's response did not match expected schema: ${result.error.issues.map((i) => i.message).join(', ')}`
+      `Claude's response did not match expected schema: ${result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`
     )
   }
 

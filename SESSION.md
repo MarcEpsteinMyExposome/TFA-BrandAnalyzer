@@ -1,6 +1,6 @@
 # Session Notes
 
-**Project:** Tech For Artists - Brand Health Analyzer (Tool 3)
+**Project:** Technology for Artists - Brand Health Analyzer (Tool 3)
 **Purpose:** Track session-by-session progress for continuity across Claude instances
 
 ---
@@ -141,6 +141,54 @@ All config files and deps are in place. Created:
 **Next session:**
 - IT8-05: Vercel deploy (GitHub push, env vars, build verification, smoke test)
 - Manual testing of full flow with real Claude API key
+
+---
+
+## Session 4 — Manual Testing Bug Fixes + New Features (2026-02-08)
+
+**What happened:**
+
+### Bug Fixes (discovered during manual testing)
+1. **Multi-screenshot per platform** — Schema had `screenshot` (singular). Changed to `screenshots: UploadedImage[]` throughout entire stack: schema → store → UI → prompt builder → tests
+2. **Fetch failure → screenshot fallback** — When LinkedIn fetch fails, added "Upload Screenshot Instead" button in ProcessingStep. Platform counts as "done" if screenshot uploaded for failed fetch
+3. **Analysis wiring** — "Continue to Analysis" called `setStep('report')` but never invoked Claude. Wired `useAnalysis` hook into page flow. ReportStep now shows streaming progress, error state, or full report
+4. **Resume at report with no data** — Store persists `step: 'report'` but not the report object. Now redirects to 'processing' step on resume when report is null
+5. **Schema too strict for Claude output** — Claude returned category values not in strict enums (e.g. `'completeness'` instead of `'platformCoverage'`). Loosened all category/severity/type/source/impact/effort fields from strict enums to `z.string()` with `.passthrough()`
+6. **MAX_TOKENS too low** — 8192 caused truncated JSON responses. Increased to 16384
+7. **Build errors from loosened schema** — Style maps in ActionItemList, MismatchCard, CompletenessGapCard used string keys to index typed objects. Added `Record<string, ...>` types + fallback default styles
+
+### New Features
+1. **Session resume + clickable stepper** — Blue banner on page load asks "Continue or Start Fresh?" when existing session detected. StepIndicator allows clicking backward to completed steps
+2. **Report source appendix** — New `ReportSourcesSection` component at bottom of report shows platform URLs, data source badges (fetched/screenshot), and screenshot thumbnails
+3. **Email report via Formspree** — Fire-and-forget email when analysis completes. Formats report as plain text, POSTs to Formspree URL from env var. Uses `sendReportEmail()` utility
+4. **"Technology for Artists" branding** — Changed from "Tech for Artists" in Header, Footer, and layout metadata
+5. **Version number v0.5** — New `lib/version.ts` constant, displayed in Footer
+6. **Tuning notes** — New `lib/analysis/tuning-notes.ts` with editable guidance that shapes Claude's analysis (scoring rubric refinements, common mistakes, tone guidance). Imported into system prompt
+
+### Technical Details
+- Dev server port changed to 3100 (via package.json `--port 3100`)
+- `.env.local` created with ANTHROPIC_API_KEY, FORMSPREE_URL, NEXT_PUBLIC_SITE_URL
+- Report schema strategy: strict enums for TypeScript safety → loosened to `z.string()` for real-world Claude output resilience. Category display names handled in UI with fallbacks
+- `useAnalysis` hook now syncs with Zustand store (`setReport`, `setIsAnalyzing`, `setError`) AND fires email
+
+**Git commits:**
+8. `c683c49` — fix 3 features (multiple screen shots, missing final report, and something else)
+9. `f2c4f71` — ok. updated to run locally on 3100
+10. **UNCOMMITTED** — session resume, report sources, email, branding, version, tuning notes, schema fixes, MAX_TOKENS, style fallbacks (24 modified + 6 new files)
+
+**Tests:** 609 passing (44 suites), build green
+
+**Decisions made:**
+- Loosened Zod schema approach: accept any string Claude returns, handle display with fallbacks
+- Tuning notes file as user-editable layer between source code and Claude's behavior
+- Fire-and-forget email (don't block report display on email success/failure)
+- Report includes source data appendix (not just analysis results)
+
+**Next session:**
+- Commit the 30 uncommitted files
+- Verify Formspree email delivery end-to-end
+- Full end-to-end manual test with real Claude API
+- IT8-05: Vercel deploy
 
 ---
 

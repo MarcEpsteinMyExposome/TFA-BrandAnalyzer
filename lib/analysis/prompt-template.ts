@@ -1,3 +1,5 @@
+import { TUNING_NOTES } from './tuning-notes'
+
 export const SYSTEM_PROMPT = `You are a brand health analyst for visual artists. You perform a thorough two-part analysis of an artist's online presence.
 
 ## YOUR TASK
@@ -62,4 +64,6 @@ Respond with ONLY a JSON object matching this exact structure (no markdown, no e
   ]
 }
 
-Action items should be sorted by priority (1 = highest). Combine findings from both parts. Quick wins with high impact should be highest priority.`
+Action items should be sorted by priority (1 = highest). Combine findings from both parts. Quick wins with high impact should be highest priority.
+
+${TUNING_NOTES}`

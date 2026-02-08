@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import StepIndicator from '@/components/analyze/StepIndicator'
 
 describe('StepIndicator', () => {
@@ -31,7 +32,9 @@ describe('StepIndicator', () => {
   it('shows completed steps with checkmark and marks them as completed', () => {
     render(<StepIndicator currentStep="processing" />)
 
-    // Steps 1 and 2 should be completed
+    // Steps 1 and 2 should be completed — rendered as buttons when onStepClick is not provided,
+    // they are rendered as divs with completed aria-label
+    // Without onStepClick, completed steps are still divs
     const step1 = screen.getByLabelText('Step 1: Add Links (completed)')
     expect(step1).toBeInTheDocument()
     // Completed steps should contain an SVG checkmark, not the number
@@ -76,5 +79,60 @@ describe('StepIndicator', () => {
     expect(screen.getByLabelText('Step 2: Screenshots (completed)')).toBeInTheDocument()
     expect(screen.getByLabelText('Step 3: Analyzing (completed)')).toBeInTheDocument()
     expect(screen.getByLabelText('Step 4: Report (current)')).toHaveAttribute('aria-current', 'step')
+  })
+
+  describe('clickable completed steps', () => {
+    it('renders completed steps as buttons when onStepClick is provided', () => {
+      const onStepClick = jest.fn()
+      render(<StepIndicator currentStep="processing" onStepClick={onStepClick} />)
+
+      // Steps 1 and 2 are completed — should be buttons
+      const step1Button = screen.getByRole('button', { name: 'Go back to Step 1: Add Links' })
+      expect(step1Button).toBeInTheDocument()
+
+      const step2Button = screen.getByRole('button', { name: 'Go back to Step 2: Screenshots' })
+      expect(step2Button).toBeInTheDocument()
+    })
+
+    it('does not render current or future steps as buttons', () => {
+      const onStepClick = jest.fn()
+      render(<StepIndicator currentStep="screenshots" onStepClick={onStepClick} />)
+
+      // Step 2 (current) and steps 3, 4 (future) should NOT be buttons
+      const buttons = screen.getAllByRole('button')
+      expect(buttons).toHaveLength(1) // Only step 1 is a button
+      expect(buttons[0]).toHaveAttribute('aria-label', 'Go back to Step 1: Add Links')
+    })
+
+    it('calls onStepClick with the step key when a completed step is clicked', async () => {
+      const user = userEvent.setup()
+      const onStepClick = jest.fn()
+      render(<StepIndicator currentStep="report" onStepClick={onStepClick} />)
+
+      await user.click(screen.getByRole('button', { name: 'Go back to Step 1: Add Links' }))
+      expect(onStepClick).toHaveBeenCalledWith('urls')
+
+      await user.click(screen.getByRole('button', { name: 'Go back to Step 2: Screenshots' }))
+      expect(onStepClick).toHaveBeenCalledWith('screenshots')
+
+      await user.click(screen.getByRole('button', { name: 'Go back to Step 3: Analyzing' }))
+      expect(onStepClick).toHaveBeenCalledWith('processing')
+    })
+
+    it('does not render buttons when onStepClick is not provided', () => {
+      render(<StepIndicator currentStep="report" />)
+
+      // No buttons should exist at all
+      const buttons = screen.queryAllByRole('button')
+      expect(buttons).toHaveLength(0)
+    })
+
+    it('on step 1 (urls), no steps are clickable', () => {
+      const onStepClick = jest.fn()
+      render(<StepIndicator currentStep="urls" onStepClick={onStepClick} />)
+
+      const buttons = screen.queryAllByRole('button')
+      expect(buttons).toHaveLength(0)
+    })
   })
 })
