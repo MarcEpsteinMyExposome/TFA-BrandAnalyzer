@@ -8,7 +8,7 @@ const mockAddPlatform = jest.fn()
 const mockRemovePlatform = jest.fn()
 const mockUpdatePlatformUrl = jest.fn()
 const mockUpdateFetchStatus = jest.fn()
-const mockSetScreenshot = jest.fn()
+const mockAddScreenshot = jest.fn()
 const mockRemoveScreenshot = jest.fn()
 const mockSetReport = jest.fn()
 const mockSetIsAnalyzing = jest.fn()
@@ -20,7 +20,7 @@ let mockPlatforms: Array<{
   url: string
   fetchable: boolean
   fetchStatus: string
-  screenshot?: unknown
+  screenshots?: unknown[]
   fetchedContent?: unknown
 }> = []
 let mockReport: unknown = null
@@ -39,7 +39,7 @@ jest.mock('@/lib/store/analysisStore', () => ({
         removePlatform: mockRemovePlatform,
         updatePlatformUrl: mockUpdatePlatformUrl,
         updateFetchStatus: mockUpdateFetchStatus,
-        setScreenshot: mockSetScreenshot,
+        addScreenshot: mockAddScreenshot,
         removeScreenshot: mockRemoveScreenshot,
         setReport: mockSetReport,
         setIsAnalyzing: mockSetIsAnalyzing,

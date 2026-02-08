@@ -14,7 +14,7 @@ interface ScreenshotStepProps {
 
 export default function ScreenshotStep({ onNext, onBack }: ScreenshotStepProps) {
   const platforms = useAnalysisStore((state) => state.platforms)
-  const setScreenshot = useAnalysisStore((state) => state.setScreenshot)
+  const addScreenshot = useAnalysisStore((state) => state.addScreenshot)
   const removeScreenshot = useAnalysisStore((state) => state.removeScreenshot)
 
   // Filter to only non-fetchable platforms that need screenshots
@@ -23,7 +23,7 @@ export default function ScreenshotStep({ onNext, onBack }: ScreenshotStepProps) 
     .filter(({ entry }) => !entry.fetchable)
 
   const uploadedCount = screenshotPlatforms.filter(
-    ({ entry }) => entry.screenshot
+    ({ entry }) => entry.screenshots && entry.screenshots.length > 0
   ).length
 
   // If no platforms need screenshots, show skip message
@@ -46,12 +46,12 @@ export default function ScreenshotStep({ onNext, onBack }: ScreenshotStepProps) 
     )
   }
 
-  const handleUpload = (index: number, image: UploadedImage) => {
-    setScreenshot(index, image)
+  const handleUpload = (platformIndex: number, image: UploadedImage) => {
+    addScreenshot(platformIndex, image)
   }
 
-  const handleRemove = (index: number) => {
-    removeScreenshot(index)
+  const handleRemove = (platformIndex: number, screenshotIndex: number) => {
+    removeScreenshot(platformIndex, screenshotIndex)
   }
 
   return (
@@ -65,7 +65,7 @@ export default function ScreenshotStep({ onNext, onBack }: ScreenshotStepProps) 
           content. Screenshots are optional but improve analysis accuracy.
         </p>
         <p className="mt-2 text-sm text-gray-500">
-          {uploadedCount} of {screenshotPlatforms.length} screenshots uploaded
+          {uploadedCount} of {screenshotPlatforms.length} platforms have screenshots
         </p>
       </div>
 
@@ -90,14 +90,14 @@ export default function ScreenshotStep({ onNext, onBack }: ScreenshotStepProps) 
               <ScreenshotUpload
                 platformId={entry.platform}
                 onUpload={(image) => handleUpload(index, image)}
-                existingImage={entry.screenshot}
-                onRemove={() => handleRemove(index)}
+                existingImages={entry.screenshots || []}
+                onRemove={(si) => handleRemove(index, si)}
               />
-              {!entry.screenshot && (
+              {(!entry.screenshots || entry.screenshots.length === 0) && (
                 <button
                   type="button"
                   onClick={() => {
-                    // Skip is a no-op — just leave screenshot undefined
+                    // Skip is a no-op — just leave screenshots empty
                   }}
                   className="text-sm text-gray-500 underline hover:text-gray-700 min-h-[44px] py-2"
                 >

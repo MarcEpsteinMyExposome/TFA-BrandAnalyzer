@@ -48,6 +48,7 @@ describe('analysisStore', () => {
         url: 'https://instagram.com/artist',
         fetchable: false,
         fetchStatus: 'pending',
+        screenshots: [],
       })
     })
 
@@ -141,30 +142,45 @@ describe('analysisStore', () => {
     })
   })
 
-  describe('setScreenshot', () => {
-    it('sets screenshot on correct platform', () => {
+  describe('addScreenshot', () => {
+    it('adds screenshot to correct platform', () => {
       useAnalysisStore.getState().addPlatform('instagram', 'https://instagram.com/artist', false)
       useAnalysisStore.getState().addPlatform('tiktok', 'https://tiktok.com/@artist', false)
 
       const image = createMockUploadedImage()
-      useAnalysisStore.getState().setScreenshot(0, image)
+      useAnalysisStore.getState().addScreenshot(0, image)
 
       const state = useAnalysisStore.getState()
-      expect(state.platforms[0].screenshot).toEqual(image)
-      expect(state.platforms[1].screenshot).toBeUndefined()
+      expect(state.platforms[0].screenshots).toEqual([image])
+      expect(state.platforms[1].screenshots).toEqual([])
+    })
+
+    it('adds multiple screenshots to same platform', () => {
+      useAnalysisStore.getState().addPlatform('instagram', 'https://instagram.com/artist', false)
+
+      const image1 = createMockUploadedImage()
+      const image2 = createMockUploadedImage()
+      useAnalysisStore.getState().addScreenshot(0, image1)
+      useAnalysisStore.getState().addScreenshot(0, image2)
+
+      const state = useAnalysisStore.getState()
+      expect(state.platforms[0].screenshots).toHaveLength(2)
     })
   })
 
   describe('removeScreenshot', () => {
-    it('removes screenshot from platform', () => {
+    it('removes screenshot at correct index from platform', () => {
       useAnalysisStore.getState().addPlatform('instagram', 'https://instagram.com/artist', false)
-      const image = createMockUploadedImage()
-      useAnalysisStore.getState().setScreenshot(0, image)
+      const image1 = createMockUploadedImage()
+      const image2 = createMockUploadedImage()
+      useAnalysisStore.getState().addScreenshot(0, image1)
+      useAnalysisStore.getState().addScreenshot(0, image2)
 
-      useAnalysisStore.getState().removeScreenshot(0)
+      useAnalysisStore.getState().removeScreenshot(0, 0)
 
       const state = useAnalysisStore.getState()
-      expect(state.platforms[0].screenshot).toBeUndefined()
+      expect(state.platforms[0].screenshots).toHaveLength(1)
+      expect(state.platforms[0].screenshots[0]).toEqual(image2)
     })
   })
 

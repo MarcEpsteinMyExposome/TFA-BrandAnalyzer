@@ -10,8 +10,8 @@ import ImagePreview from './ImagePreview'
 interface ScreenshotUploadProps {
   platformId: PlatformId
   onUpload: (image: UploadedImage) => void
-  existingImage?: UploadedImage
-  onRemove: () => void
+  existingImages: UploadedImage[]
+  onRemove: (screenshotIndex: number) => void
 }
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
@@ -20,7 +20,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 export default function ScreenshotUpload({
   platformId,
   onUpload,
-  existingImage,
+  existingImages,
   onRemove,
 }: ScreenshotUploadProps) {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -70,8 +70,8 @@ export default function ScreenshotUpload({
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault()
       setIsDragOver(false)
-      const file = e.dataTransfer.files[0]
-      if (file) {
+      const files = Array.from(e.dataTransfer.files)
+      for (const file of files) {
         processFile(file)
       }
     },
@@ -90,8 +90,8 @@ export default function ScreenshotUpload({
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) {
+      const files = Array.from(e.target.files || [])
+      for (const file of files) {
         processFile(file)
       }
       // Reset input so the same file can be re-selected
@@ -106,37 +106,40 @@ export default function ScreenshotUpload({
     fileInputRef.current?.click()
   }, [])
 
-  // Show existing image preview
-  if (existingImage) {
-    return (
-      <div data-testid={`screenshot-preview-${platformId}`}>
-        <ImagePreview
-          src={existingImage.data}
-          fileName={existingImage.fileName}
-          onRemove={onRemove}
-        />
-      </div>
-    )
-  }
-
-  // Show processing state
-  if (isProcessing) {
-    return (
-      <div className="flex items-center justify-center rounded border-2 border-dashed border-gray-300 bg-gray-50 p-8">
-        <div className="text-center">
-          <div
-            className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900"
-            role="status"
-            aria-label="Processing image"
-          />
-          <p className="text-sm text-gray-500">Processing image...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div>
+      {/* Show existing image previews as a grid */}
+      {existingImages.length > 0 && (
+        <div
+          className="mb-3 flex flex-wrap gap-4"
+          data-testid={`screenshot-preview-${platformId}`}
+        >
+          {existingImages.map((image, index) => (
+            <ImagePreview
+              key={`${image.fileName}-${index}`}
+              src={image.data}
+              fileName={image.fileName}
+              onRemove={() => onRemove(index)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Show processing state */}
+      {isProcessing && (
+        <div className="mb-3 flex items-center justify-center rounded border-2 border-dashed border-gray-300 bg-gray-50 p-8">
+          <div className="text-center">
+            <div
+              className="mx-auto mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900"
+              role="status"
+              aria-label="Processing image"
+            />
+            <p className="text-sm text-gray-500">Processing image...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Upload dropzone - always visible so users can add more */}
       <div
         role="button"
         tabIndex={0}
@@ -158,7 +161,7 @@ export default function ScreenshotUpload({
         aria-label={`Upload screenshot for ${platformId}`}
       >
         <p className="text-sm font-medium text-gray-700">
-          Drag &amp; drop a screenshot here
+          Drag &amp; drop {existingImages.length > 0 ? 'more screenshots' : 'a screenshot'} here
         </p>
         <p className="mt-1 text-xs text-gray-500">or click to browse</p>
         <p className="mt-2 text-xs text-gray-500">
@@ -169,6 +172,7 @@ export default function ScreenshotUpload({
         ref={fileInputRef}
         type="file"
         accept="image/png,image/jpeg,image/webp"
+        multiple
         onChange={handleFileChange}
         className="hidden"
         aria-hidden="true"

@@ -97,7 +97,7 @@ describe('ScreenshotStep', () => {
       removePlatform: jest.fn(),
       updatePlatformUrl: jest.fn(),
       updateFetchStatus: jest.fn(),
-      setScreenshot: mockSetScreenshot,
+      addScreenshot: mockSetScreenshot,
       removeScreenshot: mockRemoveScreenshot,
       setReport: jest.fn(),
       setStep: jest.fn(),
@@ -230,12 +230,14 @@ describe('ScreenshotStep', () => {
           url: 'https://instagram.com/artist',
           fetchable: false,
           fetchStatus: 'pending',
-          screenshot: {
-            data: 'data:image/png;base64,abc',
-            mimeType: 'image/png',
-            fileName: 'ig.png',
-            fileSize: 1000,
-          },
+          screenshots: [
+            {
+              data: 'data:image/png;base64,abc',
+              mimeType: 'image/png',
+              fileName: 'ig.png',
+              fileSize: 1000,
+            },
+          ],
         },
         {
           platform: 'tiktok',
@@ -248,7 +250,7 @@ describe('ScreenshotStep', () => {
 
     render(<ScreenshotStep onNext={jest.fn()} onBack={jest.fn()} />)
 
-    expect(screen.getByText('1 of 2 screenshots uploaded')).toBeInTheDocument()
+    expect(screen.getByText('1 of 2 platforms have screenshots')).toBeInTheDocument()
   })
 
   it('calls onBack when Back button is clicked', async () => {

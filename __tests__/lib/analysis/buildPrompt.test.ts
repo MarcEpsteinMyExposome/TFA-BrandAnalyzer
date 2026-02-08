@@ -10,6 +10,7 @@ function makePlatformEntry(
     url: 'https://example.com',
     fetchable: true,
     fetchStatus: 'success',
+    screenshots: [],
     ...overrides,
   }
 }
@@ -87,7 +88,7 @@ describe('buildUserMessage', () => {
         platform: 'instagram',
         url: 'https://instagram.com/janedoe',
         fetchable: false,
-        screenshot: makeScreenshot(),
+        screenshots: [makeScreenshot()],
       }),
     ]
 
@@ -109,7 +110,7 @@ describe('buildUserMessage', () => {
       (b): b is { type: 'text'; text: string } => b.type === 'text'
     )
     const screenshotLabel = textBlocks.find((b) =>
-      b.text.includes('[Screenshot of')
+      b.text.includes('[Screenshot 1 of 1 for')
     )
     expect(screenshotLabel).toBeDefined()
     expect(screenshotLabel!.text).toContain('Instagram')
@@ -222,10 +223,10 @@ describe('buildUserMessage', () => {
         platform: 'instagram',
         url: 'https://instagram.com/janedoe',
         fetchable: false,
-        screenshot: makeScreenshot({
+        screenshots: [makeScreenshot({
           data: 'data:image/jpeg;base64,/9j/4AAQSkZJRg',
           mimeType: 'image/jpeg' as const,
-        }),
+        })],
       }),
     ]
 
@@ -246,9 +247,9 @@ describe('buildUserMessage', () => {
         platform: 'instagram',
         url: 'https://instagram.com/janedoe',
         fetchable: false,
-        screenshot: makeScreenshot({
+        screenshots: [makeScreenshot({
           data: 'iVBORw0KGgoAAAANSUhEUg',
-        }),
+        })],
       }),
     ]
 
@@ -307,7 +308,7 @@ describe('estimateTokens', () => {
   it('adds 1600 tokens per screenshot', () => {
     const platforms: PlatformEntry[] = [
       makePlatformEntry({
-        screenshot: makeScreenshot(),
+        screenshots: [makeScreenshot()],
       }),
     ]
 
@@ -327,7 +328,7 @@ describe('estimateTokens', () => {
         }),
       }),
       makePlatformEntry({
-        screenshot: makeScreenshot(),
+        screenshots: [makeScreenshot()],
       }),
     ]
 

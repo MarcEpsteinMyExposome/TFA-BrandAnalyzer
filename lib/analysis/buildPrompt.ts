@@ -28,7 +28,7 @@ export function buildUserMessage(platforms: PlatformEntry[]): ContentBlock[] {
     // Platform header
     content.push({
       type: 'text',
-      text: `\n--- PLATFORM: ${config.name} (${entry.url}) ---\nData source: ${entry.fetchedContent ? 'Auto-fetched content' : entry.screenshot ? 'Screenshot' : 'URL only (no data available)'}\n`,
+      text: `\n--- PLATFORM: ${config.name} (${entry.url}) ---\nData source: ${entry.fetchedContent ? 'Auto-fetched content' : entry.screenshots?.length ? `Screenshot(s) (${entry.screenshots.length})` : 'URL only (no data available)'}\n`,
     })
 
     // Fetched text content
@@ -52,26 +52,29 @@ export function buildUserMessage(platforms: PlatformEntry[]): ContentBlock[] {
       content.push({ type: 'text', text })
     }
 
-    // Screenshot image
-    if (entry.screenshot) {
-      // Extract base64 data (remove data URL prefix if present)
-      let base64Data = entry.screenshot.data
-      if (base64Data.includes(',')) {
-        base64Data = base64Data.split(',')[1]
-      }
+    // Screenshot images
+    if (entry.screenshots?.length) {
+      for (let i = 0; i < entry.screenshots.length; i++) {
+        const screenshot = entry.screenshots[i]
+        // Extract base64 data (remove data URL prefix if present)
+        let base64Data = screenshot.data
+        if (base64Data.includes(',')) {
+          base64Data = base64Data.split(',')[1]
+        }
 
-      content.push({
-        type: 'image',
-        source: {
-          type: 'base64',
-          media_type: entry.screenshot.mimeType,
-          data: base64Data,
-        },
-      })
-      content.push({
-        type: 'text',
-        text: `[Screenshot of ${config.name} profile/page]\n`,
-      })
+        content.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: screenshot.mimeType,
+            data: base64Data,
+          },
+        })
+        content.push({
+          type: 'text',
+          text: `[Screenshot ${i + 1} of ${entry.screenshots.length} for ${config.name}]\n`,
+        })
+      }
     }
   }
 
@@ -98,8 +101,8 @@ export function estimateTokens(platforms: PlatformEntry[]): number {
         (entry.fetchedContent.description?.length || 0)
       estimate += Math.ceil(textLen / 4) // ~4 chars per token
     }
-    if (entry.screenshot) {
-      estimate += 1600 // images typically ~1600 tokens
+    if (entry.screenshots?.length) {
+      estimate += 1600 * entry.screenshots.length // images typically ~1600 tokens each
     }
     estimate += 100 // per-platform overhead
   }

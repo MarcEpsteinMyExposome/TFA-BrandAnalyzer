@@ -51,7 +51,7 @@ export const platformEntrySchema = z.object({
   fetchable: z.boolean(),
   fetchStatus: fetchStatusSchema,
   fetchedContent: extractedContentSchema.optional(),
-  screenshot: uploadedImageSchema.optional(),
+  screenshots: z.array(uploadedImageSchema).default([]),
   fetchError: z.string().optional(),
 })
 

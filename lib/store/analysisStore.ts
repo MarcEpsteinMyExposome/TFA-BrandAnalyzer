@@ -33,8 +33,8 @@ export interface AnalysisState {
   removePlatform: (index: number) => void
   updatePlatformUrl: (index: number, url: string) => void
   updateFetchStatus: (index: number, status: FetchStatus, content?: ExtractedContent, error?: string) => void
-  setScreenshot: (index: number, image: UploadedImage) => void
-  removeScreenshot: (index: number) => void
+  addScreenshot: (platformIndex: number, image: UploadedImage) => void
+  removeScreenshot: (platformIndex: number, screenshotIndex: number) => void
   setReport: (report: BrandReport) => void
   setStep: (step: AnalysisStep) => void
   setIsAnalyzing: (isAnalyzing: boolean) => void
@@ -64,6 +64,7 @@ export const useAnalysisStore = create<AnalysisState>()(
               url,
               fetchable,
               fetchStatus: 'pending' as FetchStatus,
+              screenshots: [],
             },
           ],
         })),
@@ -94,17 +95,26 @@ export const useAnalysisStore = create<AnalysisState>()(
           ),
         })),
 
-      setScreenshot: (index, image) =>
+      addScreenshot: (platformIndex, image) =>
         set((state) => ({
           platforms: state.platforms.map((p, i) =>
-            i === index ? { ...p, screenshot: image } : p
+            i === platformIndex
+              ? { ...p, screenshots: [...(p.screenshots || []), image] }
+              : p
           ),
         })),
 
-      removeScreenshot: (index) =>
+      removeScreenshot: (platformIndex, screenshotIndex) =>
         set((state) => ({
           platforms: state.platforms.map((p, i) =>
-            i === index ? { ...p, screenshot: undefined } : p
+            i === platformIndex
+              ? {
+                  ...p,
+                  screenshots: (p.screenshots || []).filter(
+                    (_, si) => si !== screenshotIndex
+                  ),
+                }
+              : p
           ),
         })),
 

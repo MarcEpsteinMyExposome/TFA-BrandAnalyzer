@@ -41,7 +41,7 @@ describe('UrlInputStep', () => {
       removePlatform: mockRemovePlatform,
       updatePlatformUrl: mockUpdatePlatformUrl,
       updateFetchStatus: jest.fn(),
-      setScreenshot: jest.fn(),
+      addScreenshot: jest.fn(),
       removeScreenshot: jest.fn(),
       setReport: jest.fn(),
       setStep: jest.fn(),

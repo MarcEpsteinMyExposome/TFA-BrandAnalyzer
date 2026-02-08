@@ -22,7 +22,7 @@ describe('ReportStep', () => {
       removePlatform: jest.fn(),
       updatePlatformUrl: jest.fn(),
       updateFetchStatus: jest.fn(),
-      setScreenshot: jest.fn(),
+      addScreenshot: jest.fn(),
       removeScreenshot: jest.fn(),
       setReport: jest.fn(),
       setStep: jest.fn(),

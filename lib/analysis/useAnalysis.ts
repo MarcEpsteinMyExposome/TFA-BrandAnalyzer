@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import type { PlatformEntry } from '@/lib/schemas/platform.schema'
 import type { BrandReport } from '@/lib/schemas/report.schema'
+import { useAnalysisStore } from '@/lib/store/analysisStore'
 
 interface UseAnalysisReturn {
   analyze: (platforms: PlatformEntry[]) => Promise<void>
@@ -23,6 +24,10 @@ export function useAnalysis(): UseAnalysisReturn {
     setStreamingText('')
     setReport(null)
     setError(null)
+
+    // Sync to Zustand store
+    useAnalysisStore.getState().setIsAnalyzing(true)
+    useAnalysisStore.getState().setError(null)
 
     try {
       const response = await fetch('/api/analyze', {
@@ -59,8 +64,10 @@ export function useAnalysis(): UseAnalysisReturn {
                 setStreamingText((prev) => prev + parsed.text)
               } else if (parsed.type === 'report') {
                 setReport(parsed.report)
+                useAnalysisStore.getState().setReport(parsed.report)
               } else if (parsed.type === 'error') {
                 setError(parsed.error)
+                useAnalysisStore.getState().setError(parsed.error)
               }
             } catch {
               // Skip malformed chunks
@@ -69,9 +76,12 @@ export function useAnalysis(): UseAnalysisReturn {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Analysis failed')
+      const errorMessage = err instanceof Error ? err.message : 'Analysis failed'
+      setError(errorMessage)
+      useAnalysisStore.getState().setError(errorMessage)
     } finally {
       setIsAnalyzing(false)
+      useAnalysisStore.getState().setIsAnalyzing(false)
     }
   }, [])
 

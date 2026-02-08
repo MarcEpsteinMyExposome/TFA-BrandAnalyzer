@@ -19,6 +19,7 @@ describe('ScreenshotUpload', () => {
     platformId: 'instagram' as const,
     onUpload: jest.fn(),
     onRemove: jest.fn(),
+    existingImages: [] as UploadedImage[],
   }
 
   beforeEach(() => {
@@ -42,33 +43,37 @@ describe('ScreenshotUpload', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows existing image preview when provided', () => {
-    const existingImage: UploadedImage = {
-      data: 'data:image/png;base64,existingdata',
-      mimeType: 'image/png',
-      fileName: 'existing-screenshot.png',
-      fileSize: 50000,
-    }
+  it('shows existing image previews when provided', () => {
+    const existingImages: UploadedImage[] = [
+      {
+        data: 'data:image/png;base64,existingdata',
+        mimeType: 'image/png',
+        fileName: 'existing-screenshot.png',
+        fileSize: 50000,
+      },
+    ]
 
     render(
-      <ScreenshotUpload {...defaultProps} existingImage={existingImage} />
+      <ScreenshotUpload {...defaultProps} existingImages={existingImages} />
     )
 
     const img = screen.getByRole('img')
-    expect(img).toHaveAttribute('src', existingImage.data)
+    expect(img).toHaveAttribute('src', existingImages[0].data)
     expect(screen.getByText('existing-screenshot.png')).toBeInTheDocument()
   })
 
-  it('shows remove button for existing image', () => {
-    const existingImage: UploadedImage = {
-      data: 'data:image/png;base64,existingdata',
-      mimeType: 'image/png',
-      fileName: 'existing-screenshot.png',
-      fileSize: 50000,
-    }
+  it('shows remove button for each existing image', () => {
+    const existingImages: UploadedImage[] = [
+      {
+        data: 'data:image/png;base64,existingdata',
+        mimeType: 'image/png',
+        fileName: 'existing-screenshot.png',
+        fileSize: 50000,
+      },
+    ]
 
     render(
-      <ScreenshotUpload {...defaultProps} existingImage={existingImage} />
+      <ScreenshotUpload {...defaultProps} existingImages={existingImages} />
     )
 
     expect(
@@ -76,20 +81,22 @@ describe('ScreenshotUpload', () => {
     ).toBeInTheDocument()
   })
 
-  it('calls onRemove when remove button is clicked on existing image', async () => {
+  it('calls onRemove with correct index when remove button is clicked', async () => {
     const user = userEvent.setup()
     const onRemove = jest.fn()
-    const existingImage: UploadedImage = {
-      data: 'data:image/png;base64,existingdata',
-      mimeType: 'image/png',
-      fileName: 'existing-screenshot.png',
-      fileSize: 50000,
-    }
+    const existingImages: UploadedImage[] = [
+      {
+        data: 'data:image/png;base64,existingdata',
+        mimeType: 'image/png',
+        fileName: 'existing-screenshot.png',
+        fileSize: 50000,
+      },
+    ]
 
     render(
       <ScreenshotUpload
         {...defaultProps}
-        existingImage={existingImage}
+        existingImages={existingImages}
         onRemove={onRemove}
       />
     )
@@ -99,9 +106,10 @@ describe('ScreenshotUpload', () => {
     )
 
     expect(onRemove).toHaveBeenCalledTimes(1)
+    expect(onRemove).toHaveBeenCalledWith(0)
   })
 
-  it('has a hidden file input that accepts image types', () => {
+  it('has a hidden file input that accepts image types and allows multiple', () => {
     render(<ScreenshotUpload {...defaultProps} />)
 
     const fileInput = screen.getByTestId(
@@ -109,6 +117,7 @@ describe('ScreenshotUpload', () => {
     ) as HTMLInputElement
     expect(fileInput).toHaveAttribute('type', 'file')
     expect(fileInput).toHaveAttribute('accept', 'image/png,image/jpeg,image/webp')
+    expect(fileInput).toHaveAttribute('multiple')
   })
 
   it('shows error for invalid file type', async () => {
@@ -151,20 +160,82 @@ describe('ScreenshotUpload', () => {
     ).toBeInTheDocument()
   })
 
-  it('does not show upload zone when existing image is provided', () => {
-    const existingImage: UploadedImage = {
-      data: 'data:image/png;base64,existingdata',
-      mimeType: 'image/png',
-      fileName: 'existing-screenshot.png',
-      fileSize: 50000,
-    }
+  it('always shows upload zone even when existing images are provided', () => {
+    const existingImages: UploadedImage[] = [
+      {
+        data: 'data:image/png;base64,existingdata',
+        mimeType: 'image/png',
+        fileName: 'existing-screenshot.png',
+        fileSize: 50000,
+      },
+    ]
 
     render(
-      <ScreenshotUpload {...defaultProps} existingImage={existingImage} />
+      <ScreenshotUpload {...defaultProps} existingImages={existingImages} />
     )
 
+    // Upload zone should always be visible for adding more screenshots
     expect(
-      screen.queryByText(/drag & drop a screenshot here/i)
-    ).not.toBeInTheDocument()
+      screen.getByText(/drag & drop more screenshots here/i)
+    ).toBeInTheDocument()
+  })
+
+  it('shows multiple existing images in a grid', () => {
+    const existingImages: UploadedImage[] = [
+      {
+        data: 'data:image/png;base64,img1',
+        mimeType: 'image/png',
+        fileName: 'screenshot-1.png',
+        fileSize: 50000,
+      },
+      {
+        data: 'data:image/png;base64,img2',
+        mimeType: 'image/png',
+        fileName: 'screenshot-2.png',
+        fileSize: 60000,
+      },
+    ]
+
+    render(
+      <ScreenshotUpload {...defaultProps} existingImages={existingImages} />
+    )
+
+    const images = screen.getAllByRole('img')
+    expect(images).toHaveLength(2)
+    expect(screen.getByText('screenshot-1.png')).toBeInTheDocument()
+    expect(screen.getByText('screenshot-2.png')).toBeInTheDocument()
+  })
+
+  it('calls onRemove with correct index for second image', async () => {
+    const user = userEvent.setup()
+    const onRemove = jest.fn()
+    const existingImages: UploadedImage[] = [
+      {
+        data: 'data:image/png;base64,img1',
+        mimeType: 'image/png',
+        fileName: 'screenshot-1.png',
+        fileSize: 50000,
+      },
+      {
+        data: 'data:image/png;base64,img2',
+        mimeType: 'image/png',
+        fileName: 'screenshot-2.png',
+        fileSize: 60000,
+      },
+    ]
+
+    render(
+      <ScreenshotUpload
+        {...defaultProps}
+        existingImages={existingImages}
+        onRemove={onRemove}
+      />
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: /remove screenshot-2\.png/i })
+    )
+
+    expect(onRemove).toHaveBeenCalledWith(1)
   })
 })

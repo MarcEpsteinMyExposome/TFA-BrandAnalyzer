@@ -9,6 +9,7 @@ import ScreenshotStep from '@/components/analyze/ScreenshotStep'
 import ProcessingStep from '@/components/analyze/ProcessingStep'
 import ReportStep from '@/components/analyze/ReportStep'
 import { useAnalysisStore } from '@/lib/store/analysisStore'
+import { useAnalysis } from '@/lib/analysis/useAnalysis'
 
 export default function AnalyzePage() {
   // Zustand hydration guard
@@ -18,6 +19,7 @@ export default function AnalyzePage() {
   const step = useAnalysisStore((state) => state.step)
   const setStep = useAnalysisStore((state) => state.setStep)
   const platforms = useAnalysisStore((state) => state.platforms)
+  const { analyze, streamingText, isAnalyzing, error: analysisError } = useAnalysis()
   const stepContentRef = useRef<HTMLDivElement>(null)
   const isInitialRender = useRef(true)
 
@@ -48,7 +50,7 @@ export default function AnalyzePage() {
 
   // Step navigation handlers
   const handleNextFromUrls = () => {
-    const needsScreenshots = platforms.some((p) => !p.fetchable && !p.screenshot)
+    const needsScreenshots = platforms.some((p) => !p.fetchable && (!p.screenshots || p.screenshots.length === 0))
     if (needsScreenshots) {
       setStep('screenshots')
     } else {
@@ -66,6 +68,7 @@ export default function AnalyzePage() {
 
   const handleProcessingComplete = () => {
     setStep('report')
+    analyze(platforms)
   }
 
   const handleStartNew = () => {
@@ -95,7 +98,13 @@ export default function AnalyzePage() {
               <ProcessingStep onComplete={handleProcessingComplete} />
             )}
             {step === 'report' && (
-              <ReportStep onStartNew={handleStartNew} />
+              <ReportStep
+                onStartNew={handleStartNew}
+                isAnalyzing={isAnalyzing}
+                streamingText={streamingText}
+                error={analysisError}
+                onRetryAnalysis={() => analyze(platforms)}
+              />
             )}
           </div>
         </div>

@@ -36,7 +36,7 @@ describe('ProcessingStep', () => {
       removePlatform: jest.fn(),
       updatePlatformUrl: jest.fn(),
       updateFetchStatus: mockUpdateFetchStatus,
-      setScreenshot: jest.fn(),
+      addScreenshot: jest.fn(),
       removeScreenshot: jest.fn(),
       setReport: jest.fn(),
       setStep: jest.fn(),
@@ -148,7 +148,7 @@ describe('ProcessingStep', () => {
           url: 'https://instagram.com/artist',
           fetchable: false,
           fetchStatus: 'pending',
-          screenshot: { data: 'base64data', mimeType: 'image/png', fileName: 'screen.png', fileSize: 1024 },
+          screenshots: [{ data: 'base64data', mimeType: 'image/png', fileName: 'screen.png', fileSize: 1024 }],
         },
       ],
     })

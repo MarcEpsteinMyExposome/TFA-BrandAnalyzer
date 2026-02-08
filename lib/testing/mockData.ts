@@ -13,6 +13,7 @@ export function createMockPlatformEntry(
     url: 'https://example.com',
     fetchable: true,
     fetchStatus: 'pending',
+    screenshots: [],
     ...overrides,
   }
 }
