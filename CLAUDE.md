@@ -68,6 +68,7 @@ npm run lint     # Run ESLint
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | **This file** - Start here |
+| `FUTURES.md` | Future features roadmap & brainstormed extensions |
 | `TASKS.md` | Task list with status |
 | `SESSION.md` | Session notes for continuity |
 | `ARCHITECTURE.md` | System architecture, data flow |
