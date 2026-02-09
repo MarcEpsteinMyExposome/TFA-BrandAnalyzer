@@ -4,10 +4,15 @@
 
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
-| IT8-05 | Vercel deploy | TODO | GitHub push, env vars, build, smoke test |
-| POST-01 | Commit Session 4 changes | TODO | 24 modified + 6 new files uncommitted |
-| POST-02 | Formspree email verification | TODO | Email sending added but not manually verified |
-| POST-03 | Full end-to-end manual test | TODO | Analysis flow fixed; user hasn't confirmed successful run |
+| POST-04 | Vercel deploy | TODO | When ready to go live |
+
+## Recently Completed
+
+| ID | Task | Status | Notes |
+|----|------|--------|-------|
+| POST-01 | Commit Session 4 changes | DONE | Committed as `3ba8b13` |
+| POST-02 | Formspree email verification | DONE | User confirmed receipt |
+| POST-03 | Full end-to-end manual test | DONE | Analysis runs, report displays, email sends |
 
 ---
 

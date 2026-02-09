@@ -10,6 +10,10 @@ import { buildUserMessage } from '@/lib/analysis/buildPrompt'
 import { parseReport } from '@/lib/analysis/parseReport'
 import { platformEntrySchema } from '@/lib/schemas/platform.schema'
 
+// Vercel serverless function timeout: Hobby = 60s max, Pro = 300s max.
+// Claude analysis typically takes 15-45 seconds.
+export const maxDuration = 60
+
 const requestSchema = z.object({
   platforms: z.array(platformEntrySchema).min(1),
 })

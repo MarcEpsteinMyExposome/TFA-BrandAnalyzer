@@ -3,6 +3,9 @@ import { z } from 'zod'
 import { fetchPage } from '@/lib/fetching/fetchPage'
 import { isValidUrl, normalizeUrl } from '@/lib/platforms/detect'
 
+// Vercel serverless function timeout: allow enough time for slow pages
+export const maxDuration = 30
+
 const requestSchema = z.object({
   url: z.string().min(1, 'URL is required'),
   platform: z.string(),
