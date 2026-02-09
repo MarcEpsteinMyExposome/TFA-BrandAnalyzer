@@ -58,6 +58,18 @@ export function createMockBrandReport(
   overrides: Partial<BrandReport> = {}
 ): BrandReport {
   return {
+    executiveSummary: {
+      strengths: [
+        'Consistent artist name across all platforms',
+        'Strong artist story on website with detailed about page',
+        'Visual identity is cohesive across website and Instagram',
+      ],
+      quickWins: [
+        'Add Etsy shop link to Instagram bio (2 minutes)',
+        'Update Instagram bio to match website description (2 minutes)',
+        'Add upcoming events section to website (5 minutes)',
+      ],
+    },
     summary:
       'Your brand shows good consistency across platforms but has some completeness gaps.',
     consistency: {
@@ -172,6 +184,59 @@ export function createMockBrandReport(
         },
       ],
       ...overrides.completeness,
+    },
+    resilience: {
+      overallScore: 55,
+      categories: [
+        {
+          category: 'domainOwnership',
+          score: 80,
+          summary: 'Artist owns their primary web domain.',
+          details:
+            'Personal website at example.com is self-hosted. Good foundation for online presence.',
+        },
+        {
+          category: 'platformDiversification',
+          score: 60,
+          summary: 'Present on 3 platforms, could diversify further.',
+          details:
+            'Active on website, Instagram, and Etsy. Adding Pinterest or Behance would increase resilience.',
+        },
+        {
+          category: 'ctaControl',
+          score: 40,
+          summary: 'Primary CTA is on a third-party platform.',
+          details:
+            'Main purchase path goes through Etsy. Adding a shop page to the personal website would give more control.',
+        },
+        {
+          category: 'emailListPresence',
+          score: 30,
+          summary: 'No email list or newsletter signup found.',
+          details:
+            'No evidence of email collection on any platform. An email list is the most resilient way to reach your audience.',
+        },
+      ],
+      risks: [
+        {
+          category: 'ctaControl',
+          severity: 'high',
+          description:
+            'Primary sales channel is entirely on Etsy, which could change fees or policies.',
+          platforms: ['etsy'],
+          recommendation:
+            'Add a shop or commission page to your personal website as a backup sales channel.',
+        },
+        {
+          category: 'emailListPresence',
+          severity: 'medium',
+          description:
+            'No way to directly contact followers if social platforms change algorithms.',
+          platforms: ['instagram'],
+          recommendation:
+            'Add a simple email signup form to your website using a free service like Mailchimp.',
+        },
+      ],
     },
     actionItems: [
       {

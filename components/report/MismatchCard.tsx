@@ -8,8 +8,8 @@ interface MismatchCardProps {
 
 const severityStyles: Record<string, { badge: string; border: string }> = {
   high: {
-    badge: 'bg-red-100 text-red-700',
-    border: 'border-l-red-500',
+    badge: 'bg-amber-100 text-amber-700',
+    border: 'border-l-amber-500',
   },
   medium: {
     badge: 'bg-yellow-100 text-yellow-700',
@@ -22,6 +22,16 @@ const severityStyles: Record<string, { badge: string; border: string }> = {
 }
 
 const defaultSeverityStyle = { badge: 'bg-gray-100 text-gray-700', border: 'border-l-gray-400' }
+
+const severityLabels: Record<string, string> = {
+  high: 'High Priority',
+  medium: 'Worth Addressing',
+  low: 'Nice to Have',
+}
+
+function formatSeverity(severity: string): string {
+  return severityLabels[severity] || severity.charAt(0).toUpperCase() + severity.slice(1)
+}
 
 function formatMismatchType(type: string): string {
   return type.charAt(0).toUpperCase() + type.slice(1)
@@ -46,7 +56,7 @@ export default function MismatchCard({ mismatch }: MismatchCardProps) {
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${styles.badge} shrink-0`}
         >
-          {mismatch.severity}
+          {formatSeverity(mismatch.severity)}
         </span>
       </div>
 
@@ -62,7 +72,7 @@ export default function MismatchCard({ mismatch }: MismatchCardProps) {
       </div>
 
       <p className="mt-3 text-sm text-gray-600">
-        <span aria-hidden="true" className="mr-1">-&gt;</span>
+        <span aria-hidden="true" className="mr-1">Suggestion:</span>
         {mismatch.recommendation}
       </p>
     </div>

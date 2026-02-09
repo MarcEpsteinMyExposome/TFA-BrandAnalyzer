@@ -33,4 +33,26 @@ describe('DualScoreHero', () => {
       screen.getByRole('heading', { name: /brand health overview/i })
     ).toBeInTheDocument()
   })
+
+  it('renders only 2 score gauges without resilienceScore prop (backward compat)', () => {
+    render(<DualScoreHero {...defaultProps} />)
+    // Should have Consistency and Completeness but NOT Resilience
+    expect(screen.getByText('Consistency')).toBeInTheDocument()
+    expect(screen.getByText('Completeness')).toBeInTheDocument()
+    expect(screen.queryByText('Resilience')).not.toBeInTheDocument()
+    // Only 2 meter roles (one for each score gauge)
+    const meters = screen.getAllByRole('meter')
+    expect(meters).toHaveLength(2)
+  })
+
+  it('renders 3 score gauges with resilienceScore prop including "Resilience" label', () => {
+    render(<DualScoreHero {...defaultProps} resilienceScore={65} />)
+    expect(screen.getByText('Consistency')).toBeInTheDocument()
+    expect(screen.getByText('Completeness')).toBeInTheDocument()
+    expect(screen.getByText('Resilience')).toBeInTheDocument()
+    expect(screen.getByText('65')).toBeInTheDocument()
+    // 3 meter roles
+    const meters = screen.getAllByRole('meter')
+    expect(meters).toHaveLength(3)
+  })
 })

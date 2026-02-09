@@ -3,7 +3,7 @@
 ## Project Overview
 
 **Project:** Technology for Artists - Brand Health Analyzer (Tool 3)
-**Status:** Feature-complete (v0.5) — pending Vercel deploy
+**Status:** v0.8 — deployed to Vercel, 627 tests passing
 **Full Plan:** `C:\Users\marce\.claude\plans\tool3-brand-consistency-analyzer.md` — **READ THIS FIRST**
 **Predecessor:** Tool 2 (Tech Intake Questionnaire) at `C:\Users\marce\Documents\Projects\TechForArtistsQuestionaire`
 
@@ -246,27 +246,97 @@ Corrupted JSON in settings files (e.g., period instead of comma) silently breaks
 
 ---
 
-## User Workflow Preferences
+## Orchestration Charter
 
-- **Run parallel subagents** to keep chat free for discussion
-- **Wave-based approach:** independent work parallel, integration sequential, tests last
-- **Main agent stays in chat** — ALL implementation work delegated to subagents
-- **Task files** as separate .md files under `.claude/tasks/`
-- **Task IDs:** `IT{iteration}-{number}` (e.g., IT1-01, IT1-02)
-- **Always update docs** after completing work (TASKS.md, CLAUDE.md, SESSION.md)
+### Role
+Claude acts as the **Orchestrator** for this repository. The orchestrator owns planning, wave sequencing, agent delegation, and quality gates. The main agent stays in the chat for discussion — ALL implementation work is delegated to subagents via the Task tool.
 
----
+### Execution Model
+- **Waves** are the unit of work. Each wave is a set of tasks that can run in parallel.
+- **Subagents** are spawned via the `Task` tool with `subagent_type: "general-purpose"` for implementation work, or `"Explore"` / `"Plan"` for research.
+- **Parallel by default.** Independent tasks within a wave run as parallel subagents in a single message.
+- **Sequential between waves.** Wave N+1 starts only after Wave N passes its gate.
 
-## Task Management Protocol
+### Auto-Continue Rules
+**After each wave gate passes, auto-continue to the next wave within the same turn.** Do NOT pause for user input between waves unless:
+- A gate check fails (tests break, build fails, lint errors)
+- There is genuine ambiguity that would cause >30 min of rework if guessed wrong
+- A destructive or irreversible action is required (deletes, migrations, credential changes)
+- The user explicitly asked to review between waves
 
-**When completing a task:**
+When auto-continuing: print a brief wave summary (completed tasks, files changed, any warnings) then immediately launch the next wave. Keep summaries to 3-5 lines per wave — save the detailed report for the end.
+
+### Wave Structure (Default)
+When the user provides a feature request without a custom wave plan, use this default:
+
+| Wave | Name | What happens |
+|------|------|-------------|
+| 0 | **Recon** | Read relevant source files, understand existing patterns, identify touch points |
+| 1 | **Schema + Foundation** | Zod schemas, types, store changes, API route stubs |
+| 2 | **Implementation** | Core logic, UI components, API wiring |
+| 3 | **Tests + Polish** | Tests for all new code, build verification, doc updates |
+
+If the user provides a custom wave plan, use that instead.
+
+### Wave Gates (Mandatory)
+Before proceeding to the next wave, the orchestrator MUST:
+1. Verify all subagents completed successfully (check their outputs)
+2. Run `npm test` to confirm no regressions
+3. Run `npm run build` to confirm compilation
+4. If either fails: fix the issue (spawn a fix agent) before proceeding
+5. Print a brief summary: tasks done, files changed, any risks
+
+### Subagent Guidelines
+When spawning subagents:
+- **Always include context.** Tell the agent which files to read first, what patterns to follow, and what the acceptance criteria are.
+- **Always require source reading.** Include "Read the source file(s) before writing any code or tests" in every agent prompt. (Lesson from IT2: assumption-based tests all fail.)
+- **Name agents descriptively.** Use names like `schema-update`, `resilience-panel`, `test-writer` — not `agent-1`, `agent-2`.
+- **Limit scope.** Each agent gets one clear task. Don't ask one agent to do 3 unrelated things.
+- **Use `run_in_background: true`** for agents whose output isn't needed before launching the next agent in the same wave.
+
+### Quality Bar
+- All new code must have tests before the feature is considered done
+- `npm test` and `npm run build` must pass at every wave gate
+- No unfinished TODOs unless explicitly noted and tracked in TASKS.md
+- No dead code — if something is removed, remove it completely
+- Follow existing repo patterns (Zod schemas, Zustand store, Tailwind 4 syntax, accessible queries in tests)
+
+### Scope Discipline
+- **Do not add features or refactors outside the stated goal**, even if they seem beneficial
+- A bug fix doesn't need surrounding code cleaned up
+- Don't add docstrings, comments, or type annotations to unchanged code
+- Don't design for hypothetical future requirements
+- If a side improvement is genuinely valuable, note it for the user but don't implement it
+
+### Task Tracking
+- **Task IDs:** `FT-{number}` for features (e.g., FT-03, FT-04)
+- **Task files** as separate .md files under `.claude/tasks/` (active) and `.claude/tasks/archive/` (completed)
+- **Always update docs** after completing work: TASKS.md, SESSION.md, CLAUDE.md if features changed
+
+### Task Completion Protocol
+When completing a task:
 1. Mark status as `DONE` in `TASKS.md`
 2. Update the task file with completion notes
 3. **Move task file to `.claude/tasks/archive/`**
 4. Update `SESSION.md` with session notes
 5. Update `CLAUDE.md` if features changed
 
-Task specs live in `.claude/tasks/` (active) and `.claude/tasks/archive/` (completed).
+### How to Give Claude a Task
+Minimal prompt format — you only need to specify **what**, not **how**:
+
+```
+Goal: [what you want built]
+
+Wave plan (optional):
+  Wave 1: [tasks]
+  Wave 2: [tasks]
+  Wave 3: [tasks]
+
+Constraints (optional):
+- [anything to avoid or require]
+```
+
+If no wave plan is provided, the default 4-wave structure applies. If no constraints are given, the standard quality bar and scope discipline apply.
 
 ---
 
@@ -288,13 +358,10 @@ Copy patterns and UI components from there — don't reinvent.
 
 ## Getting Started
 
-1. Read the full plan: `C:\Users\marce\.claude\plans\tool3-brand-consistency-analyzer.md`
-2. Start with **Iteration 1** — 4 parallel tasks:
-   - IT1-01: Repo scaffold + tooling (`create-next-app`, Jest, dependencies)
-   - IT1-02: Documentation system (this file is already started)
-   - IT1-03: Shared UI components (copy from Tool 2)
-   - IT1-04: Landing page
-3. Run `npm test` + `npm run build` to verify before moving to IT2
+1. Read this file (`CLAUDE.md`) — it's auto-loaded every session
+2. Check `TASKS.md` for current priorities
+3. Check `FUTURES.md` for feature specs and implementation plans
+4. Follow the Orchestration Charter above for execution
 
 ---
 

@@ -6,12 +6,14 @@ import ScoreGauge from './ScoreGauge'
 interface DualScoreHeroProps {
   consistencyScore: number
   completenessScore: number
+  resilienceScore?: number
   summary: string
 }
 
 export default function DualScoreHero({
   consistencyScore,
   completenessScore,
+  resilienceScore,
   summary,
 }: DualScoreHeroProps) {
   return (
@@ -32,6 +34,13 @@ export default function DualScoreHero({
             label="Completeness"
             size="lg"
           />
+          {resilienceScore !== undefined && (
+            <ScoreGauge
+              score={resilienceScore}
+              label="Resilience"
+              size="lg"
+            />
+          )}
         </div>
 
         <p className="text-gray-600 text-center max-w-2xl">

@@ -18,27 +18,39 @@ describe('MismatchCard', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows severity badge with correct color for high severity', () => {
+  it('shows "High Priority" label for high severity with amber colors', () => {
     render(<MismatchCard mismatch={defaultMismatch} />)
-    const badge = screen.getByText('high')
-    expect(badge.className).toContain('bg-red-100')
-    expect(badge.className).toContain('text-red-700')
+    const badge = screen.getByText('High Priority')
+    expect(badge.className).toContain('bg-amber-100')
+    expect(badge.className).toContain('text-amber-700')
   })
 
-  it('shows severity badge with correct color for medium severity', () => {
+  it('uses amber border for high severity', () => {
+    const { container } = render(<MismatchCard mismatch={defaultMismatch} />)
+    const card = container.firstChild as HTMLElement
+    expect(card.className).toContain('border-l-amber-500')
+  })
+
+  it('shows "Worth Addressing" label for medium severity with yellow colors', () => {
     const mismatch: Mismatch = { ...defaultMismatch, severity: 'medium' }
     render(<MismatchCard mismatch={mismatch} />)
-    const badge = screen.getByText('medium')
+    const badge = screen.getByText('Worth Addressing')
     expect(badge.className).toContain('bg-yellow-100')
     expect(badge.className).toContain('text-yellow-700')
   })
 
-  it('shows severity badge with correct color for low severity', () => {
+  it('shows "Nice to Have" label for low severity with blue colors', () => {
     const mismatch: Mismatch = { ...defaultMismatch, severity: 'low' }
     render(<MismatchCard mismatch={mismatch} />)
-    const badge = screen.getByText('low')
+    const badge = screen.getByText('Nice to Have')
     expect(badge.className).toContain('bg-blue-100')
     expect(badge.className).toContain('text-blue-700')
+  })
+
+  it('capitalizes unknown severity as fallback', () => {
+    const mismatch: Mismatch = { ...defaultMismatch, severity: 'critical' as string }
+    render(<MismatchCard mismatch={mismatch} />)
+    expect(screen.getByText('Critical')).toBeInTheDocument()
   })
 
   it('shows affected platforms', () => {
@@ -52,6 +64,11 @@ describe('MismatchCard', () => {
     expect(
       screen.getByText('Update Instagram bio to match website description.')
     ).toBeInTheDocument()
+  })
+
+  it('shows "Suggestion:" prefix before recommendation', () => {
+    render(<MismatchCard mismatch={defaultMismatch} />)
+    expect(screen.getByText('Suggestion:')).toBeInTheDocument()
   })
 
   it('shows mismatch type label', () => {

@@ -3,8 +3,10 @@
 import type { BrandReport as BrandReportType } from '@/lib/schemas/report.schema'
 import { useAnalysisStore } from '@/lib/store/analysisStore'
 import DualScoreHero from './DualScoreHero'
+import ExecutiveSummary from './ExecutiveSummary'
 import ConsistencyPanel from './ConsistencyPanel'
 import CompletenessPanel from './CompletenessPanel'
+import ResiliencePanel from './ResiliencePanel'
 import ActionItemList from './ActionItemList'
 import ReportActions from './ReportActions'
 import ReportSourcesSection from './ReportSourcesSection'
@@ -22,17 +24,23 @@ export default function BrandReport({ report, onStartNew }: BrandReportProps) {
       <DualScoreHero
         consistencyScore={report.consistency.overallScore}
         completenessScore={report.completeness.overallScore}
+        resilienceScore={report.resilience?.overallScore}
         summary={report.summary}
       />
 
-      <ConsistencyPanel consistency={report.consistency} />
+      {report.executiveSummary && (
+        <ExecutiveSummary executiveSummary={report.executiveSummary} />
+      )}
 
+      <ConsistencyPanel consistency={report.consistency} />
       <CompletenessPanel completeness={report.completeness} />
 
+      {report.resilience && (
+        <ResiliencePanel resilience={report.resilience} />
+      )}
+
       <ActionItemList actionItems={report.actionItems} />
-
       <ReportSourcesSection platforms={platforms} />
-
       <ReportActions report={report} platforms={platforms} onStartNew={onStartNew} />
     </div>
   )

@@ -153,6 +153,84 @@ describe('generateDocx', () => {
     expect(result).toBeInstanceOf(Blob)
     expect(result.type).toBe(DOCX_MIME_TYPE)
   })
+
+  it('generates a larger blob with resilience data than without', async () => {
+    const reportWithResilience = createMockBrandReport()
+    // reportWithResilience already has resilience data from mock factory
+
+    const reportWithoutResilience = createMockBrandReport()
+    // Remove resilience so it does not produce the section
+    delete (reportWithoutResilience as Record<string, unknown>).resilience
+
+    const platforms = [createMockPlatformEntry()]
+
+    const blobWith = await generateDocx(reportWithResilience, platforms)
+    const blobWithout = await generateDocx(reportWithoutResilience, platforms)
+
+    expect(blobWith).toBeInstanceOf(Blob)
+    expect(blobWithout).toBeInstanceOf(Blob)
+    expect(blobWith.size).toBeGreaterThan(blobWithout.size)
+  })
+
+  it('generates successfully with executiveSummary data', async () => {
+    const report = createMockBrandReport({
+      executiveSummary: {
+        strengths: ['Great name consistency', 'Strong visual identity'],
+        quickWins: ['Add shop link to bio', 'Update LinkedIn profile'],
+      },
+    })
+    const platforms = [createMockPlatformEntry()]
+
+    const result = await generateDocx(report, platforms)
+
+    expect(result).toBeInstanceOf(Blob)
+    expect(result.type).toBe(DOCX_MIME_TYPE)
+  })
+
+  it('generates without error using friendlySeverity for resilience risks', async () => {
+    const report = createMockBrandReport({
+      resilience: {
+        overallScore: 50,
+        categories: [
+          {
+            category: 'domainOwnership',
+            score: 60,
+            summary: 'Owns domain',
+            details: 'Domain is registered',
+          },
+        ],
+        risks: [
+          {
+            category: 'emailListPresence',
+            severity: 'high',
+            description: 'No email list',
+            platforms: ['website'],
+            recommendation: 'Add signup form',
+          },
+          {
+            category: 'ctaControl',
+            severity: 'medium',
+            description: 'CTA on third party',
+            platforms: ['etsy'],
+            recommendation: 'Add shop to own site',
+          },
+          {
+            category: 'platformDiversification',
+            severity: 'low',
+            description: 'Only 2 platforms',
+            platforms: [],
+            recommendation: 'Consider Pinterest',
+          },
+        ],
+      },
+    })
+    const platforms = [createMockPlatformEntry()]
+
+    const result = await generateDocx(report, platforms)
+
+    expect(result).toBeInstanceOf(Blob)
+    expect(result.type).toBe(DOCX_MIME_TYPE)
+  })
 })
 
 describe('downloadDocx', () => {

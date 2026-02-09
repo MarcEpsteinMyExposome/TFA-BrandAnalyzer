@@ -100,7 +100,7 @@ describe('ReportStep', () => {
       screen.getByRole('heading', { name: /brand completeness/i })
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: /prioritized action items/i })
+      screen.getByRole('heading', { name: /your action plan/i })
     ).toBeInTheDocument()
   })
 })

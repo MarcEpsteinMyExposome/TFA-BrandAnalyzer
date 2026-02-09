@@ -7,6 +7,10 @@ import {
   completenessGapSchema,
   actionItemSchema,
   brandReportSchema,
+  executiveSummarySchema,
+  resilienceScoreSchema,
+  resilienceRiskSchema,
+  resilienceCategorySchema,
 } from '@/lib/schemas/report.schema'
 
 describe('consistencyCategorySchema', () => {
@@ -497,5 +501,192 @@ describe('brandReportSchema', () => {
       ],
     })
     expect(result.success).toBe(true)
+  })
+
+  it('accepts a report WITHOUT executiveSummary and resilience (backward compat)', () => {
+    // validReport has neither executiveSummary nor resilience
+    const result = brandReportSchema.safeParse(validReport)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      // Should default executiveSummary to empty arrays
+      expect(result.data.executiveSummary).toEqual({ strengths: [], quickWins: [] })
+      // Should default resilience to empty structure
+      expect(result.data.resilience).toEqual({ overallScore: 0, categories: [], risks: [] })
+    }
+  })
+
+  it('accepts a report WITH executiveSummary and resilience', () => {
+    const reportWithAll = {
+      ...validReport,
+      executiveSummary: {
+        strengths: ['Consistent name'],
+        quickWins: ['Add shop link'],
+      },
+      resilience: {
+        overallScore: 65,
+        categories: [
+          {
+            category: 'domainOwnership',
+            score: 80,
+            summary: 'Owns domain',
+            details: 'artist.com is registered',
+          },
+        ],
+        risks: [
+          {
+            category: 'emailListPresence',
+            severity: 'high',
+            description: 'No email list',
+            platforms: ['website'],
+            recommendation: 'Add signup form',
+          },
+        ],
+      },
+    }
+    const result = brandReportSchema.safeParse(reportWithAll)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.executiveSummary.strengths).toEqual(['Consistent name'])
+      expect(result.data.executiveSummary.quickWins).toEqual(['Add shop link'])
+      expect(result.data.resilience!.overallScore).toBe(65)
+      expect(result.data.resilience!.categories).toHaveLength(1)
+      expect(result.data.resilience!.risks).toHaveLength(1)
+    }
+  })
+})
+
+describe('executiveSummarySchema', () => {
+  it('validates correctly with strengths and quickWins arrays', () => {
+    const valid = {
+      strengths: ['Good branding', 'Consistent name'],
+      quickWins: ['Add shop link', 'Update bio'],
+    }
+    const result = executiveSummarySchema.safeParse(valid)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.strengths).toEqual(['Good branding', 'Consistent name'])
+      expect(result.data.quickWins).toEqual(['Add shop link', 'Update bio'])
+    }
+  })
+
+  it('defaults to empty arrays when strengths and quickWins are omitted', () => {
+    const result = executiveSummarySchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.strengths).toEqual([])
+      expect(result.data.quickWins).toEqual([])
+    }
+  })
+})
+
+describe('resilienceCategorySchema', () => {
+  it.each([
+    'domainOwnership', 'platformDiversification', 'ctaControl', 'emailListPresence',
+  ])('accepts valid category: %s', (category) => {
+    const result = resilienceCategorySchema.safeParse(category)
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects an invalid category', () => {
+    const result = resilienceCategorySchema.safeParse('socialMedia')
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('resilienceScoreSchema', () => {
+  const validScore = {
+    category: 'domainOwnership',
+    score: 80,
+    summary: 'Owns personal domain',
+    details: 'artist.com is registered and active',
+  }
+
+  it('validates correctly', () => {
+    const result = resilienceScoreSchema.safeParse(validScore)
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts score of 0', () => {
+    const result = resilienceScoreSchema.safeParse({ ...validScore, score: 0 })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts score of 100', () => {
+    const result = resilienceScoreSchema.safeParse({ ...validScore, score: 100 })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects score below 0', () => {
+    const result = resilienceScoreSchema.safeParse({ ...validScore, score: -1 })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects score above 100', () => {
+    const result = resilienceScoreSchema.safeParse({ ...validScore, score: 101 })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts any string as category (loosened from enum)', () => {
+    const result = resilienceScoreSchema.safeParse({ ...validScore, category: 'anything' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects missing details field', () => {
+    const { details, ...noDetails } = validScore
+    const result = resilienceScoreSchema.safeParse(noDetails)
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('resilienceRiskSchema', () => {
+  const validRisk = {
+    category: 'emailListPresence',
+    severity: 'high',
+    description: 'No email list found',
+    platforms: ['website'],
+    recommendation: 'Add a newsletter signup form',
+  }
+
+  it('validates correctly with all fields', () => {
+    const result = resilienceRiskSchema.safeParse(validRisk)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.category).toBe('emailListPresence')
+      expect(result.data.severity).toBe('high')
+      expect(result.data.description).toBe('No email list found')
+      expect(result.data.platforms).toEqual(['website'])
+      expect(result.data.recommendation).toBe('Add a newsletter signup form')
+    }
+  })
+
+  it('defaults platforms to empty array when omitted', () => {
+    const { platforms, ...noPlatforms } = validRisk
+    const result = resilienceRiskSchema.safeParse(noPlatforms)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.platforms).toEqual([])
+    }
+  })
+
+  it('accepts any string as category (loosened from enum)', () => {
+    const result = resilienceRiskSchema.safeParse({ ...validRisk, category: 'customCategory' })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts any string as severity (loosened from enum)', () => {
+    const result = resilienceRiskSchema.safeParse({ ...validRisk, severity: 'critical' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects missing recommendation', () => {
+    const { recommendation, ...noRec } = validRisk
+    const result = resilienceRiskSchema.safeParse(noRec)
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects missing description', () => {
+    const { description, ...noDesc } = validRisk
+    const result = resilienceRiskSchema.safeParse(noDesc)
+    expect(result.success).toBe(false)
   })
 })

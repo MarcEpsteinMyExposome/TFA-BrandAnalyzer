@@ -7,7 +7,7 @@ interface ActionItemListProps {
 }
 
 const impactStyles: Record<string, string> = {
-  high: 'bg-red-100 text-red-700',
+  high: 'bg-amber-100 text-amber-700',
   medium: 'bg-yellow-100 text-yellow-700',
   low: 'bg-green-100 text-green-700',
 }
@@ -21,9 +21,20 @@ const effortStyles: Record<string, string> = {
 const sourceStyles: Record<string, string> = {
   consistency: 'bg-blue-100 text-blue-700',
   completeness: 'bg-purple-100 text-purple-700',
+  resilience: 'bg-teal-100 text-teal-700',
 }
 
 const defaultStyle = 'bg-gray-100 text-gray-700'
+
+const impactLabels: Record<string, string> = {
+  high: 'High impact',
+  medium: 'Moderate impact',
+  low: 'Quick win',
+}
+
+function formatImpact(impact: string): string {
+  return impactLabels[impact] || `${impact.charAt(0).toUpperCase() + impact.slice(1)} impact`
+}
 
 export default function ActionItemList({ actionItems }: ActionItemListProps) {
   const sorted = [...actionItems].sort((a, b) => a.priority - b.priority)
@@ -31,7 +42,7 @@ export default function ActionItemList({ actionItems }: ActionItemListProps) {
   return (
     <section aria-labelledby="actions-heading">
       <h2 id="actions-heading" className="text-xl font-semibold text-gray-900 mb-4">
-        Prioritized Action Items
+        Your Action Plan
       </h2>
 
       {sorted.length === 0 ? (
@@ -55,12 +66,12 @@ export default function ActionItemList({ actionItems }: ActionItemListProps) {
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${sourceStyles[item.source] || defaultStyle}`}
                   >
-                    {item.source === 'consistency' ? 'Consistency' : 'Completeness'}
+                    {item.source === 'consistency' ? 'Consistency' : item.source === 'resilience' ? 'Resilience' : 'Completeness'}
                   </span>
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${impactStyles[item.impact] || defaultStyle}`}
                   >
-                    {item.impact} impact
+                    {formatImpact(item.impact)}
                   </span>
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${effortStyles[item.effort] || defaultStyle}`}

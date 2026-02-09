@@ -18,27 +18,39 @@ describe('CompletenessGapCard', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows severity badge with correct color for high severity', () => {
+  it('shows "High Priority" label for high severity with amber colors', () => {
     render(<CompletenessGapCard gap={defaultGap} />)
-    const badge = screen.getByText('high')
-    expect(badge.className).toContain('bg-red-100')
-    expect(badge.className).toContain('text-red-700')
+    const badge = screen.getByText('High Priority')
+    expect(badge.className).toContain('bg-amber-100')
+    expect(badge.className).toContain('text-amber-700')
   })
 
-  it('shows severity badge with correct color for medium severity', () => {
+  it('uses amber border for high severity', () => {
+    const { container } = render(<CompletenessGapCard gap={defaultGap} />)
+    const card = container.firstChild as HTMLElement
+    expect(card.className).toContain('border-l-amber-500')
+  })
+
+  it('shows "Worth Addressing" label for medium severity with yellow colors', () => {
     const gap: CompletenessGap = { ...defaultGap, severity: 'medium' }
     render(<CompletenessGapCard gap={gap} />)
-    const badge = screen.getByText('medium')
+    const badge = screen.getByText('Worth Addressing')
     expect(badge.className).toContain('bg-yellow-100')
     expect(badge.className).toContain('text-yellow-700')
   })
 
-  it('shows severity badge with correct color for low severity', () => {
+  it('shows "Nice to Have" label for low severity with blue colors', () => {
     const gap: CompletenessGap = { ...defaultGap, severity: 'low' }
     render(<CompletenessGapCard gap={gap} />)
-    const badge = screen.getByText('low')
+    const badge = screen.getByText('Nice to Have')
     expect(badge.className).toContain('bg-blue-100')
     expect(badge.className).toContain('text-blue-700')
+  })
+
+  it('capitalizes unknown severity as fallback', () => {
+    const gap: CompletenessGap = { ...defaultGap, severity: 'urgent' as string }
+    render(<CompletenessGapCard gap={gap} />)
+    expect(screen.getByText('Urgent')).toBeInTheDocument()
   })
 
   it('shows category label formatted nicely', () => {
@@ -56,6 +68,11 @@ describe('CompletenessGapCard', () => {
     expect(
       screen.getByText('Add your Etsy shop link to your Instagram bio.')
     ).toBeInTheDocument()
+  })
+
+  it('shows "Suggestion:" prefix before recommendation', () => {
+    render(<CompletenessGapCard gap={defaultGap} />)
+    expect(screen.getByText('Suggestion:')).toBeInTheDocument()
   })
 
   it('shows examples when provided', () => {

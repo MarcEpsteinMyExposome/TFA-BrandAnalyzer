@@ -85,6 +85,19 @@ function capitalize(text: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Helper: friendly severity label (tone softening)
+// ---------------------------------------------------------------------------
+
+function friendlySeverity(severity: string): string {
+  const labels: Record<string, string> = {
+    high: 'High Priority',
+    medium: 'Worth Addressing',
+    low: 'Nice to Have',
+  }
+  return labels[severity.toLowerCase()] || capitalize(severity)
+}
+
+// ---------------------------------------------------------------------------
 // Helper: human-readable platform name
 // ---------------------------------------------------------------------------
 
@@ -334,11 +347,54 @@ function buildTitleSection(): Paragraph[] {
 // ---------------------------------------------------------------------------
 
 function buildSummarySection(report: BrandReport): Paragraph[] {
-  return [
+  const elements: Paragraph[] = [
     sectionHeading('Executive Summary'),
     bodyText(report.summary),
-    new Paragraph({ children: [new PageBreak()] }),
   ]
+
+  const es = report.executiveSummary
+  if (es && (es.strengths.length > 0 || es.quickWins.length > 0)) {
+    if (es.strengths.length > 0) {
+      elements.push(subsectionHeading('What You\u2019re Doing Well'))
+      es.strengths.forEach((strength) => {
+        elements.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `\u2022 ${strength}`,
+                size: 22,
+                font: 'Calibri',
+                color: COLORS.brand,
+              }),
+            ],
+            spacing: { before: 60, after: 60 },
+          })
+        )
+      })
+    }
+
+    if (es.quickWins.length > 0) {
+      elements.push(subsectionHeading('Your Quick Wins'))
+      es.quickWins.forEach((quickWin, i) => {
+        elements.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: `${i + 1}. ${quickWin}`,
+                size: 22,
+                font: 'Calibri',
+                color: COLORS.brand,
+              }),
+            ],
+            spacing: { before: 60, after: 60 },
+          })
+        )
+      })
+    }
+  }
+
+  elements.push(new Paragraph({ children: [new PageBreak()] }))
+  return elements
 }
 
 // ---------------------------------------------------------------------------
@@ -346,20 +402,31 @@ function buildSummarySection(report: BrandReport): Paragraph[] {
 // ---------------------------------------------------------------------------
 
 function buildScoresOverview(report: BrandReport): (Paragraph | Table)[] {
+  const hasResilience = report.resilience && report.resilience.overallScore > 0
+  const colWidth = hasResilience ? 33 : 50
+
+  const headerCells = [
+    headerCell('Consistency Score', colWidth),
+    headerCell('Completeness Score', colWidth),
+  ]
+  const scoreCells = [
+    scoreCell(report.consistency.overallScore, colWidth),
+    scoreCell(report.completeness.overallScore, colWidth),
+  ]
+
+  if (hasResilience) {
+    headerCells.push(headerCell('Resilience Score', colWidth))
+    scoreCells.push(scoreCell(report.resilience!.overallScore, colWidth))
+  }
+
   const table = new Table({
     rows: [
       new TableRow({
-        children: [
-          headerCell('Consistency Score', 50),
-          headerCell('Completeness Score', 50),
-        ],
+        children: headerCells,
         tableHeader: true,
       }),
       new TableRow({
-        children: [
-          scoreCell(report.consistency.overallScore, 50),
-          scoreCell(report.completeness.overallScore, 50),
-        ],
+        children: scoreCells,
       }),
     ],
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -428,14 +495,14 @@ function buildConsistencySection(report: BrandReport): (Paragraph | Table)[] {
 
   // Mismatches
   if (report.consistency.mismatches.length > 0) {
-    elements.push(subsectionHeading('Mismatches Found'))
+    elements.push(subsectionHeading('Findings & Opportunities'))
 
     report.consistency.mismatches.forEach((m) => {
       elements.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: `[${m.severity.toUpperCase()}] `,
+              text: `[${friendlySeverity(m.severity)}] `,
               bold: true,
               color: severityColor(m.severity),
               size: 22,
@@ -566,14 +633,14 @@ function buildCompletenessSection(
 
   // Gaps
   if (report.completeness.gaps.length > 0) {
-    elements.push(subsectionHeading('Gaps Identified'))
+    elements.push(subsectionHeading('Gaps & Opportunities'))
 
     report.completeness.gaps.forEach((gap) => {
       elements.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: `[${gap.severity.toUpperCase()}] `,
+              text: `[${friendlySeverity(gap.severity)}] `,
               bold: true,
               color: severityColor(gap.severity),
               size: 22,
@@ -666,6 +733,144 @@ function buildCompletenessSection(
 
       // Extra spacing after each gap
       elements.push(new Paragraph({ spacing: { after: 80 }, children: [] }))
+    })
+  }
+
+  elements.push(new Paragraph({ children: [new PageBreak()] }))
+  return elements
+}
+
+// ---------------------------------------------------------------------------
+// Section: Ownership & Resilience
+// ---------------------------------------------------------------------------
+
+function buildResilienceSection(report: BrandReport): (Paragraph | Table)[] {
+  const elements: (Paragraph | Table)[] = []
+
+  elements.push(sectionHeading('Part 3: Ownership & Resilience'))
+  elements.push(
+    bodyText(
+      `Overall Resilience Score: ${report.resilience!.overallScore}/100`
+    )
+  )
+
+  // Category scores table
+  if (report.resilience!.categories.length > 0) {
+    elements.push(subsectionHeading('Category Scores'))
+
+    const headerRow = new TableRow({
+      children: [
+        headerCell('Category', 25),
+        headerCell('Score', 12),
+        headerCell('Summary', 30),
+        headerCell('Details', 33),
+      ],
+      tableHeader: true,
+    })
+
+    const dataRows = report.resilience!.categories.map((cat, i) =>
+      new TableRow({
+        children: [
+          dataCell(formatCategoryName(cat.category), {
+            bgColor: rowBgColor(i),
+            bold: true,
+          }),
+          scoreCell(cat.score),
+          dataCell(cat.summary, { bgColor: rowBgColor(i) }),
+          dataCell(cat.details, { bgColor: rowBgColor(i) }),
+        ],
+      })
+    )
+
+    elements.push(
+      new Table({
+        rows: [headerRow, ...dataRows],
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        layout: TableLayoutType.FIXED,
+      })
+    )
+  }
+
+  // Risks
+  if (report.resilience!.risks.length > 0) {
+    elements.push(subsectionHeading('Risks & Opportunities'))
+
+    report.resilience!.risks.forEach((risk) => {
+      elements.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `[${friendlySeverity(risk.severity)}] `,
+              bold: true,
+              color: severityColor(risk.severity),
+              size: 22,
+              font: 'Calibri',
+            }),
+            new TextRun({
+              text: risk.category
+                ? `${formatCategoryName(risk.category)}: `
+                : '',
+              bold: true,
+              size: 22,
+              font: 'Calibri',
+              color: COLORS.brand,
+            }),
+            new TextRun({
+              text: risk.description,
+              size: 22,
+              font: 'Calibri',
+              color: COLORS.brand,
+            }),
+          ],
+          spacing: { before: 120, after: 40 },
+        })
+      )
+
+      if (risk.platforms.length > 0) {
+        elements.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: 'Platforms: ',
+                bold: true,
+                size: 20,
+                font: 'Calibri',
+                color: COLORS.muted,
+              }),
+              new TextRun({
+                text: risk.platforms.map(platformName).join(', '),
+                size: 20,
+                font: 'Calibri',
+                color: COLORS.muted,
+              }),
+            ],
+            spacing: { before: 0, after: 20 },
+          })
+        )
+      }
+
+      elements.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Recommendation: ',
+              bold: true,
+              italics: true,
+              size: 20,
+              font: 'Calibri',
+              color: COLORS.muted,
+            }),
+            new TextRun({
+              text: risk.recommendation,
+              italics: true,
+              size: 20,
+              font: 'Calibri',
+              color: COLORS.muted,
+            }),
+          ],
+          spacing: { before: 0, after: 120 },
+        })
+      )
     })
   }
 
@@ -927,6 +1132,9 @@ export async function generateDocx(
     ...buildScoresOverview(report),
     ...buildConsistencySection(report),
     ...buildCompletenessSection(report),
+    ...(report.resilience && report.resilience.categories.length > 0
+      ? buildResilienceSection(report)
+      : []),
     ...buildActionItemsSection(report),
     ...buildSourcesSection(platforms),
   ]

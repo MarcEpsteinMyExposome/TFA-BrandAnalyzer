@@ -53,6 +53,40 @@ export const completenessGapSchema = z.object({
 
 export type CompletenessGap = z.infer<typeof completenessGapSchema>
 
+// Executive summary
+export const executiveSummarySchema = z.object({
+  strengths: z.array(z.string()).default([]),
+  quickWins: z.array(z.string()).default([]),
+})
+
+export type ExecutiveSummary = z.infer<typeof executiveSummarySchema>
+
+// Resilience types
+export const resilienceCategorySchema = z.enum([
+  'domainOwnership', 'platformDiversification', 'ctaControl', 'emailListPresence'
+])
+
+export type ResilienceCategory = z.infer<typeof resilienceCategorySchema>
+
+export const resilienceScoreSchema = z.object({
+  category: z.string(), // Prefer enum values but accept anything Claude returns
+  score: z.number().min(0).max(100),
+  summary: z.string(),
+  details: z.string(),
+})
+
+export type ResilienceScore = z.infer<typeof resilienceScoreSchema>
+
+export const resilienceRiskSchema = z.object({
+  category: z.string(), // Prefer enum values but accept anything Claude returns
+  severity: z.string(),
+  description: z.string(),
+  platforms: z.array(z.string()).default([]),
+  recommendation: z.string(),
+}).passthrough()
+
+export type ResilienceRisk = z.infer<typeof resilienceRiskSchema>
+
 // Action items
 export const actionItemSchema = z.object({
   priority: z.number(),
@@ -67,6 +101,7 @@ export type ActionItem = z.infer<typeof actionItemSchema>
 
 // Full brand report
 export const brandReportSchema = z.object({
+  executiveSummary: executiveSummarySchema.optional().default({ strengths: [], quickWins: [] }),
   summary: z.string(),
   consistency: z.object({
     overallScore: z.number().min(0).max(100),
@@ -78,6 +113,11 @@ export const brandReportSchema = z.object({
     categories: z.array(completenessScoreSchema),
     gaps: z.array(completenessGapSchema),
   }),
+  resilience: z.object({
+    overallScore: z.number().min(0).max(100),
+    categories: z.array(resilienceScoreSchema),
+    risks: z.array(resilienceRiskSchema),
+  }).optional().default({ overallScore: 0, categories: [], risks: [] }),
   actionItems: z.array(actionItemSchema),
 })
 

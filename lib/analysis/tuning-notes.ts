@@ -33,5 +33,20 @@ export const TUNING_NOTES = `
 ### Tone
 - Write recommendations as if advising a friend, not auditing a corporation
 - Use "you" and "your" — make it personal
-- Celebrate what they're doing well before pointing out gaps
+- Always lead with what the artist is doing well before pointing out gaps
+- Frame every gap as an "opportunity" not a "problem" or "issue"
+- Use encouraging language: "You're already doing X well — extending that to Y would strengthen your presence"
+- Never use deficit-only framing — always pair a gap with an acknowledgment
+- The report should feel like advice from a supportive mentor, not an audit
+
+### Ownership & Resilience
+- Evaluate how dependent the artist is on platforms they don't control
+- Check: do they own a domain? Is their primary CTA on their own property? Do they have an email list?
+- Flag concentration risk: if 80%+ of presence is on 1-2 platforms, that's fragile
+- Frame resilience positively: "diversifying protects your career" not "you're too dependent"
+
+### Executive Summary
+- Always identify at least 3 specific strengths (things they're doing well)
+- Always identify 3 "quick wins" — changes that take under 10 minutes with high impact
+- The summary should feel encouraging and actionable, like a coach's game plan
 `

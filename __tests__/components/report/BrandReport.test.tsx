@@ -59,7 +59,7 @@ describe('BrandReport', () => {
   it('renders ActionItemList', () => {
     render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
     expect(
-      screen.getByRole('heading', { name: /prioritized action items/i })
+      screen.getByRole('heading', { name: /your action plan/i })
     ).toBeInTheDocument()
   })
 
@@ -102,6 +102,46 @@ describe('BrandReport', () => {
     render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
     expect(
       screen.getByRole('button', { name: /download report as word document/i })
+    ).toBeInTheDocument()
+  })
+
+  it('renders ExecutiveSummary when present', () => {
+    // mockReport from createMockBrandReport already includes executiveSummary
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('heading', { name: /executive summary/i })
+    ).toBeInTheDocument()
+    // Check a strength from the mock data
+    expect(
+      screen.getByText('Consistent artist name across all platforms')
+    ).toBeInTheDocument()
+  })
+
+  it('renders ResiliencePanel when resilience data is present', () => {
+    // mockReport from createMockBrandReport already includes resilience
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('heading', { name: /part 3: ownership & resilience/i })
+    ).toBeInTheDocument()
+  })
+
+  it('still renders correctly without resilience data (backward compat)', () => {
+    const reportWithoutResilience = createMockBrandReport({
+      resilience: undefined as never,
+    })
+    // Manually remove resilience to simulate backward compat
+    delete (reportWithoutResilience as Record<string, unknown>).resilience
+    render(<BrandReport report={reportWithoutResilience} onStartNew={mockOnStartNew} />)
+    // Should NOT render ResiliencePanel
+    expect(
+      screen.queryByRole('heading', { name: /part 3: ownership & resilience/i })
+    ).not.toBeInTheDocument()
+    // But should still render the rest
+    expect(
+      screen.getByRole('heading', { name: /brand consistency/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /brand completeness/i })
     ).toBeInTheDocument()
   })
 })
