@@ -5,10 +5,13 @@
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
 | FT-01 | .docx report export | DONE | Committed `60e6660`. Screenshot thumbnails, v0.8 bump. |
-| FT-02 | Website Health & Technical Audit | TODO | 5-phase plan: HTML analysis → link checker → PageSpeed → SSL → report integration. See FUTURES.md §1.4 |
+| FT-03 | Tone & Narrative Softening | TODO | Reframe report as supportive/empowering. Prompt tuning + UI language changes. See FUTURES.md §1.7. **NEXT UP.** |
+| FT-04 | Ownership & Resilience Score | TODO | New 3rd scored dimension: platform dependency, domain ownership, CTA resilience. See FUTURES.md §1.8. |
+| FT-02 | Website Health & Technical Audit | TODO | 5-phase plan. See FUTURES.md §1.4. **DISCUSS FIRST:** feasibility, build-vs-leverage existing tools, scope. |
+| FT-05 | ChatGPT Review Items (batch) | TODO | Screenshot UX, exec summary, conversion clarity, audience fit, monetization tiers. See FUTURES.md §2.8-2.12. |
 | POST-04 | Vercel deploy verification | DONE | Fixed: API key had trailing whitespace in Vercel env vars. SSE chunking fix pushed. |
 | POST-05 | Commit FT-01 + session 5 updates | DONE | Committed `60e6660`. Push to origin blocked — see Session 6 notes. |
-| POST-06 | Push 2 commits to origin | BLOCKED | `git push` hangs. GitHub `.git/info/refs` endpoint times out (network-level block). REST API works fine. Need reboot or SSH setup. |
+| POST-06 | Push 2 commits to origin | DONE | Resolved after reboot. Both `562b8d5` and `60e6660` pushed to origin. |
 
 ## Recently Completed
 

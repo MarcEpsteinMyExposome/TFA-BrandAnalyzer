@@ -403,6 +403,54 @@ This feature consolidates and supersedes several scattered ideas:
 
 ---
 
+### 1.7 Tone & Narrative Softening — "Supportive, Not Punitive"
+**Source:** ChatGPT review (Session 7). **Priority: NEXT.**
+**Problem:** Artists can take criticism personally. A red "42/100" feels like a grade on their art, not their SEO. The current report uses clinical severity language (HIGH/MEDIUM/LOW) that can feel harsh.
+
+**Changes needed:**
+1. **Prompt tuning** (`tuning-notes.ts` + `prompt-template.ts`) — instruct Claude to:
+   - Lead with strengths before gaps
+   - Frame findings as "opportunities" not "problems"
+   - Use encouraging language: "You're already doing X well — extending that to Y would strengthen your presence"
+   - Avoid deficit-only framing
+2. **UI language** — soften severity labels in `MismatchCard`, `CompletenessGapCard`, `ActionItemList`:
+   - "High priority" instead of red "HIGH"
+   - Amber/green color bias instead of red-heavy
+   - Add a "What you're doing well" section at the top of each report part
+3. **Executive summary** — add a 1-page overview at the top of the report:
+   - 3 biggest strengths
+   - 3 fastest wins
+   - Overall score with encouraging framing
+
+**Effort:** Small — 1 session. Mostly prompt + CSS/text changes.
+
+---
+
+### 1.8 Ownership & Resilience Score — "How Fragile Is Your Online Presence?"
+**Source:** ChatGPT review (Session 7). **Priority: After 1.7.**
+**Concept:** A third scored dimension alongside Consistency and Completeness. Artists deeply care about platform dependence even if they don't articulate it.
+
+**What it checks:**
+- Do you own a domain? (vs relying entirely on third-party platforms)
+- Is your primary CTA on a platform you control?
+- Do you have a first-party email list?
+- How concentrated is your presence? (1-2 platforms = fragile, 4-5 = diversified)
+- Could you survive if Instagram/Etsy disappeared tomorrow?
+
+**Actionable output example:**
+"82% of your traffic and sales depend on Etsy + Instagram. One policy change could shut you down. Here's how to rebalance."
+
+**Implementation:**
+- Mostly a prompt engineering change — add Ownership & Resilience as a third analysis section
+- New schema section in `report.schema.ts`
+- New UI component: `ResiliencePanel.tsx` (similar structure to ConsistencyPanel/CompletenessPanel)
+- Update `DualScoreHero` → `TripleScoreHero` or add a third card
+- Update `.docx` export to include the new section
+
+**Effort:** Medium — 2 sessions. Prompt + schema + UI + tests.
+
+---
+
 ### 1.5 Re-Analysis / Progress Tracking
 **Currently:** Each analysis is ephemeral.
 **Enhancement:** Save reports to a database. Allow re-running analysis on the same URLs and show a comparison: "Your consistency score improved from 62 → 78 since last month." Requires user accounts or at least a unique link system.
@@ -470,6 +518,55 @@ Use Claude's vision capabilities more deeply:
 - Check if cover images / banners match or clash
 - Identify outdated photos (e.g., a 2019 profile photo on LinkedIn vs a 2024 one on Instagram)
 - "Your Instagram and website use warm earth tones, but your LinkedIn has a cold blue theme"
+
+---
+
+### 2.8 Screenshot Upload UX Improvements
+**Source:** ChatGPT review (Session 7).
+Screenshots are necessary but cognitively heavy. Two improvements:
+- **Auto-quality checks** — detect low resolution, bad cropping, wrong screen (e.g., uploaded a selfie instead of a profile page)
+- **Inline good vs bad examples** — static image assets per platform showing what a correct screenshot looks like
+Reduces frustration and support burden.
+
+---
+
+### 2.9 Executive Summary / "What Do I Do First?" View
+**Source:** ChatGPT review (Session 7).
+Long multi-section reports risk cognitive overload. Add a 1-page executive summary:
+- 3 biggest risks
+- 3 fastest wins
+- Overall scores
+- "Start here" pointer
+**Note:** Partially overlaps with tone softening (1.7) — the exec summary can be built as part of that work.
+
+---
+
+### 2.10 Conversion Clarity Checks
+**Source:** ChatGPT review (Session 7).
+Beyond "purchase path" — check for:
+- "What should I do here?" clarity within 5 seconds per platform
+- Single dominant CTA per platform
+- CTA mismatches across platforms (Instagram says "DM me", website says "Shop")
+Mostly Claude interpretation from existing data — prompt engineering + schema addition.
+
+---
+
+### 2.11 Audience Fit vs Platform Choice
+**Source:** ChatGPT review (Session 7).
+Not all platforms are equal for a given artist. Lightweight check:
+- Platform used vs artist's medium + goals (e.g., sculptor with no video presence on TikTok)
+- Over-investment vs under-investment signals
+Helps avoid generic advice like "you should be on TikTok." Would benefit from Tool 2 integration (1.6) for context about the artist's medium/goals.
+
+---
+
+### 2.12 Monetization Tiers
+**Source:** ChatGPT review (Session 7).
+Define free vs paid boundaries:
+- **Free:** One full report, no saving, no re-runs, no history
+- **Paid ($9-$19):** Save reports, re-run comparisons, progress tracking, editable exports, AI-generated fix text
+- **Pro/Consultant:** White-label, batch uploads, client dashboards
+The killer paid feature is "show me I'm improving" (progress tracking). Requires database + identity (see 1.5, 3.3).
 
 ---
 
@@ -619,17 +716,20 @@ These were explicitly mentioned by the user and should be prioritized:
 
 ## Implementation Priority Recommendation
 
-If picking the next features after v0.8:
+**Revised after ChatGPT review (Session 7):**
 
-| Priority | Feature | Why |
-|----------|---------|-----|
-| 1 | ~~.docx Report Export (1.3)~~ | **DONE** — implemented in v0.8 with screenshot thumbnails |
-| 2 | **Website Health Audit (1.4)** | **Transforms tool from brand-only to full health check; phases 1-2 need no API keys** |
-| 3 | Web Presence Search (1.1) | Unique differentiator, high wow-factor, answers a real pain point |
-| 4 | Search Visibility (1.2) | Natural companion to 1.1, high value for artists |
-| 5 | AI-Generated Fixes (3.5) | Leverages existing Claude integration |
-| 6 | Re-Analysis Tracking (1.5) | Requires database, but huge retention value |
-| 7 | Tool 2 Integration (1.6) | Strengthens the TFA ecosystem |
+| Priority | Feature | Effort | Why |
+|----------|---------|--------|-----|
+| 1 | ~~.docx Report Export (1.3)~~ | — | **DONE** (v0.8) |
+| 2 | **Tone & Narrative Softening (1.7)** | Small | **NEXT.** High impact, low effort. Prompt + UI language. Makes report feel empowering, not punitive. |
+| 3 | **Ownership & Resilience Score (1.8)** | Medium | New 3rd scored dimension. Differentiator. Mostly prompt + schema + UI. |
+| 4 | **Website Health Audit (1.4)** | Large | **DISCUSS BEFORE BUILDING:** feasibility, build-vs-leverage existing tools, scope reduction options. |
+| 5 | Web Presence Search (1.1) | Medium | Unique differentiator, high wow-factor |
+| 6 | Re-Analysis / Progress Tracking (1.5) | Large | Enables monetization + retention. Requires database. |
+| 7 | Search Visibility (1.2) | Medium | Natural companion to 1.1 |
+| 8 | ChatGPT review items (2.8-2.12) | Varies | Screenshot UX, exec summary, conversion clarity, audience fit, monetization tiers |
+| 9 | AI-Generated Fixes (3.5) | Medium | Leverages existing Claude integration |
+| 10 | Tool 2 Integration (1.6) | Medium | Strengthens the TFA ecosystem |
 
 ---
 
@@ -653,5 +753,5 @@ If picking the next features after v0.8:
 
 ---
 
-**Last updated:** 2026-02-09 (Session 5 — added §1.4 Website Health Audit plan)
+**Last updated:** 2026-02-09 (Session 7 — ChatGPT review integrated: §1.7, §1.8, §2.8-2.12, revised priority table)
 **Status:** Living document — add ideas as they come up
