@@ -5,8 +5,8 @@
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
 | FT-01 | .docx report export | DONE | Committed `60e6660`. Screenshot thumbnails, v0.8 bump. |
-| FT-03 | Tone & Narrative Softening | TODO | Reframe report as supportive/empowering. Prompt tuning + UI language changes. See FUTURES.md §1.7. **NEXT UP.** |
-| FT-04 | Ownership & Resilience Score | TODO | New 3rd scored dimension: platform dependency, domain ownership, CTA resilience. See FUTURES.md §1.8. |
+| FT-03 | Tone & Narrative Softening | DONE | Softened severity labels, ExecutiveSummary component, prompt tuning. 689 tests passing. |
+| FT-04 | Ownership & Resilience Score | DONE | 3rd scored dimension: ResiliencePanel, ResilienceRiskCard, schema, prompt, .docx export. 689 tests passing. |
 | FT-02 | Website Health & Technical Audit | TODO | 5-phase plan. See FUTURES.md §1.4. **DISCUSS FIRST:** feasibility, build-vs-leverage existing tools, scope. |
 | FT-05 | ChatGPT Review Items (batch) | TODO | Screenshot UX, exec summary, conversion clarity, audience fit, monetization tiers. See FUTURES.md §2.8-2.12. |
 | POST-04 | Vercel deploy verification | DONE | Fixed: API key had trailing whitespace in Vercel env vars. SSE chunking fix pushed. |
