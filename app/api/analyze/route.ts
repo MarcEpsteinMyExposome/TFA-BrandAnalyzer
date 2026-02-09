@@ -84,15 +84,26 @@ function classifyClaudeError(error: unknown): { message: string; status: number 
     }
 
     if (fullMsg.includes('ECONNREFUSED') || fullMsg.includes('ENOTFOUND') || fullMsg.includes('fetch failed') || fullMsg.includes('network') || fullMsg.includes('Connection error')) {
+      // Sanitize: never expose API keys in user-facing messages
+      const safeDetail = (causeMsg || msg).replace(/sk-ant-[^\s)"]*/g, '[REDACTED]')
       return {
-        message: `Unable to reach the AI service (${causeMsg || msg}). Please try again.`,
+        message: `Unable to reach the AI service (${safeDetail}). Please try again.`,
         status: 502,
+      }
+    }
+
+    if (fullMsg.includes('not a legal HTTP header value')) {
+      return {
+        message: 'API key configuration error: the key contains invalid characters (check for trailing spaces or newlines in Vercel env vars).',
+        status: 500,
       }
     }
   }
 
+  // Sanitize: never expose API keys in user-facing error messages
+  const rawMsg = error instanceof Error ? error.message : 'Internal server error'
   return {
-    message: error instanceof Error ? error.message : 'Internal server error',
+    message: rawMsg.replace(/sk-ant-[^\s)"]*/g, '[REDACTED]'),
     status: 500,
   }
 }
