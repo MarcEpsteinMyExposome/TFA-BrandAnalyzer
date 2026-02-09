@@ -50,28 +50,42 @@ function isRateLimited(ip: string): boolean {
 export { rateLimitMap, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS }
 
 function classifyClaudeError(error: unknown): { message: string; status: number } {
+  // Log full error details for Vercel runtime logs
   if (error instanceof Error) {
+    const cause = (error as unknown as { cause?: Error }).cause
+    console.error('[analyze] Error:', error.message)
+    console.error('[analyze] Error name:', error.constructor.name)
+    if (cause) {
+      console.error('[analyze] Cause:', cause.message)
+      console.error('[analyze] Cause name:', cause.constructor.name)
+      if ((cause as unknown as { code?: string }).code) {
+        console.error('[analyze] Cause code:', (cause as unknown as { code?: string }).code)
+      }
+    }
+
     const msg = error.message || ''
+    const causeMsg = cause?.message || ''
+    const fullMsg = `${msg} ${causeMsg}`
     const anyError = error as unknown as Record<string, unknown>
     const statusCode = typeof anyError.status === 'number' ? anyError.status : 0
 
-    if (statusCode === 429 || msg.includes('rate_limit') || msg.includes('429')) {
+    if (statusCode === 429 || fullMsg.includes('rate_limit') || fullMsg.includes('429')) {
       return {
         message: 'Claude API rate limit reached. Please wait a few minutes and try again.',
         status: 429,
       }
     }
 
-    if (statusCode === 401 || msg.includes('authentication') || msg.includes('invalid_api_key') || msg.includes('401')) {
+    if (statusCode === 401 || fullMsg.includes('authentication') || fullMsg.includes('invalid_api_key') || fullMsg.includes('401')) {
       return {
         message: 'API key configuration error. Please contact the site administrator.',
         status: 500,
       }
     }
 
-    if (msg.includes('ECONNREFUSED') || msg.includes('ENOTFOUND') || msg.includes('fetch failed') || msg.includes('network')) {
+    if (fullMsg.includes('ECONNREFUSED') || fullMsg.includes('ENOTFOUND') || fullMsg.includes('fetch failed') || fullMsg.includes('network') || fullMsg.includes('Connection error')) {
       return {
-        message: 'Unable to reach the AI service. Please check your connection and try again.',
+        message: `Unable to reach the AI service (${causeMsg || msg}). Please try again.`,
         status: 502,
       }
     }
