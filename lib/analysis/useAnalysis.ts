@@ -60,38 +60,46 @@ export function useAnalysis(): UseAnalysisReturn {
       if (!reader) throw new Error('No response body')
 
       const decoder = new TextDecoder()
+      let buffer = ''
 
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
-        const chunk = decoder.decode(value)
-        const lines = chunk.split('\n')
+        buffer += decoder.decode(value, { stream: true })
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6)
-            if (data === '[DONE]') continue
+        // Process complete SSE events (terminated by double newline)
+        const events = buffer.split('\n\n')
+        // Keep the last element as it may be incomplete
+        buffer = events.pop() || ''
 
-            try {
-              const parsed = JSON.parse(data)
-              if (parsed.type === 'text') {
-                setStreamingText((prev) => prev + parsed.text)
-              } else if (parsed.type === 'report') {
-                setReport(parsed.report)
-                useAnalysisStore.getState().setReport(parsed.report)
-                // Fire-and-forget: email report to TFA
-                sendReportEmail(parsed.report, platforms).then((result) => {
-                  if (!result.success) {
-                    console.error('Failed to email report:', result.error)
-                  }
-                })
-              } else if (parsed.type === 'error') {
-                setError(parsed.error)
-                useAnalysisStore.getState().setError(parsed.error)
+        for (const event of events) {
+          const lines = event.split('\n')
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6)
+              if (data === '[DONE]') continue
+
+              try {
+                const parsed = JSON.parse(data)
+                if (parsed.type === 'text') {
+                  setStreamingText((prev) => prev + parsed.text)
+                } else if (parsed.type === 'report') {
+                  setReport(parsed.report)
+                  useAnalysisStore.getState().setReport(parsed.report)
+                  // Fire-and-forget: email report to TFA
+                  sendReportEmail(parsed.report, platforms).then((result) => {
+                    if (!result.success) {
+                      console.error('Failed to email report:', result.error)
+                    }
+                  })
+                } else if (parsed.type === 'error') {
+                  setError(parsed.error)
+                  useAnalysisStore.getState().setError(parsed.error)
+                }
+              } catch {
+                console.error('Failed to parse SSE event:', data.slice(0, 200))
               }
-            } catch {
-              // Skip malformed chunks
             }
           }
         }
