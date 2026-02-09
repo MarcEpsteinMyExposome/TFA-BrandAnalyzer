@@ -229,6 +229,40 @@ All config files and deps are in place. Created:
 
 ---
 
+## Session 6 — Git Push Troubleshooting (2026-02-09)
+
+**What happened:**
+
+### Git Push Blocked
+- 2 commits ahead of origin (`562b8d5`, `60e6660`) — local commit succeeded last session but push hung
+- Rebooted between sessions — first attempt returned 503, subsequent attempts hang again
+- Cleaned up leftover git http config from last session (`http.version`, `postbuffer`, `sslbackend`)
+- Ran `gh auth setup-git` to use GitHub CLI as credential helper — still hangs
+- SSH not configured (no key on this machine)
+
+### Root Cause Identified
+- `https://github.com/.../TFA-BrandAnalyzer` (repo page) → **200 OK**
+- `https://github.com/.../TFA-BrandAnalyzer.git/info/refs?service=git-upload-pack` → **timeout**
+- `gh api repos/.../TFA-BrandAnalyzer` → **works fine** (uses `api.github.com`)
+- TCP to `github.com:443` → **succeeds** (Test-NetConnection)
+- DNS resolves correctly (`140.82.113.3`)
+
+**Diagnosis:** Something on the network (router, ISP, antivirus, or Windows Defender) is blocking the git smart HTTP protocol paths (`*.git/info/refs`) while allowing regular HTTPS and the GitHub REST API. This is path-level filtering, not a connection-level block.
+
+### Recommended Fixes (in order)
+1. Reboot again (cleared stale config this session)
+2. Set up SSH key and switch remote to `git@github.com:...`
+3. Check router/firewall for URL filtering rules blocking `.git` paths
+4. Try from a different network (mobile hotspot)
+
+**Tests:** 627 passing (build green, no code changes this session)
+
+**Next session:**
+- Resolve git push (SSH setup or network fix)
+- FT-02: Website Health & Technical Audit
+
+---
+
 ## Template for Future Sessions
 
 ```

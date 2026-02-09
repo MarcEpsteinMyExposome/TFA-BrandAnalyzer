@@ -39,7 +39,20 @@
       "Bash(copy:*)",
       "Bash(powershell:*)",
       "Bash(vercel --version:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" status)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" log --oneline -5)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" push origin master)",
+      "Bash(gh -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" api repos/MarcEpsteinMyExposome/TFA-BrandAnalyzer --jq \".full_name, .default_branch\")",
+      "Bash(gh api:*)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" config --get remote.origin.url)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" config --global --get-regexp http)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" config --global --unset http.version)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" config --global --unset http.postbuffer)",
+      "Bash(git -C \"c:\\\\Users\\\\marce\\\\Documents\\\\Projects\\\\TFA-BrandAnalyzer\" config --global --unset http.sslbackend)",
+      "Bash(gh auth setup-git:*)",
+      "Bash(ssh -T:*)",
+      "Bash(curl:*)"
     ],
     "deny": [
       "Bash(rm:*)",
