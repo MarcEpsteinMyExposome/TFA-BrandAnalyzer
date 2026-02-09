@@ -4,7 +4,8 @@
 
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
-| POST-04 | Vercel deploy | TODO | When ready to go live |
+| FT-01 | .docx report export | TODO | Editable Word download from report page. See FUTURES.md §1.3 |
+| POST-04 | Vercel deploy verification | TODO | maxDuration fix pushed; verify analysis works on Vercel |
 
 ## Recently Completed
 

@@ -38,8 +38,22 @@ export function useAnalysis(): UseAnalysisReturn {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP ${response.status}`)
+        let errorMessage = `HTTP ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          // Response wasn't JSON (e.g., Vercel HTML error page)
+          const text = await response.text().catch(() => '')
+          if (response.status === 504) {
+            errorMessage = 'Analysis timed out. The server took too long to respond. Please try again.'
+          } else if (response.status === 413) {
+            errorMessage = 'Request too large. Try removing some screenshots and retry.'
+          } else {
+            errorMessage = `Server error (${response.status}). ${text.slice(0, 200)}`
+          }
+        }
+        throw new Error(errorMessage)
       }
 
       const reader = response.body?.getReader()
@@ -83,7 +97,13 @@ export function useAnalysis(): UseAnalysisReturn {
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Analysis failed'
+      let errorMessage = 'Analysis failed'
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        errorMessage = 'Could not connect to the server. This may be a timeout or network issue. Please try again.'
+      } else if (err instanceof Error) {
+        errorMessage = err.message
+      }
+      console.error('Analysis error:', err)
       setError(errorMessage)
       useAnalysisStore.getState().setError(errorMessage)
     } finally {
