@@ -8,6 +8,10 @@ import {
   createMockExtractedContent,
 } from '@/lib/testing/mockData'
 
+jest.mock('@/lib/export/generateDocx', () => ({
+  downloadDocx: jest.fn().mockResolvedValue(undefined),
+}))
+
 describe('BrandReport', () => {
   const mockReport = createMockBrandReport()
   const mockOnStartNew = jest.fn()
@@ -92,5 +96,12 @@ describe('BrandReport', () => {
     render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
     expect(screen.getByText('https://example.com')).toBeInTheDocument()
     expect(screen.getByText('https://instagram.com/artist')).toBeInTheDocument()
+  })
+
+  it('renders Download Report (.docx) button', () => {
+    render(<BrandReport report={mockReport} onStartNew={mockOnStartNew} />)
+    expect(
+      screen.getByRole('button', { name: /download report as word document/i })
+    ).toBeInTheDocument()
   })
 })

@@ -33,7 +33,7 @@ export default function BrandReport({ report, onStartNew }: BrandReportProps) {
 
       <ReportSourcesSection platforms={platforms} />
 
-      <ReportActions onStartNew={onStartNew} />
+      <ReportActions report={report} platforms={platforms} onStartNew={onStartNew} />
     </div>
   )
 }

@@ -4,9 +4,10 @@
 
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
-| FT-01 | .docx report export | TODO | Editable Word download from report page. See FUTURES.md §1.3 |
+| FT-01 | .docx report export | DONE | Editable Word download from report page. Code complete, not yet committed. |
 | FT-02 | Website Health & Technical Audit | TODO | 5-phase plan: HTML analysis → link checker → PageSpeed → SSL → report integration. See FUTURES.md §1.4 |
 | POST-04 | Vercel deploy verification | DONE | Fixed: API key had trailing whitespace in Vercel env vars. SSE chunking fix pushed. |
+| POST-05 | Commit FT-01 + session 5 updates | TODO | .docx export + CLAUDE.md mkdir workaround + SESSION.md session 5 |
 
 ## Recently Completed
 

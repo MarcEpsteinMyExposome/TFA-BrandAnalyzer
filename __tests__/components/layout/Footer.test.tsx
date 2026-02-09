@@ -16,6 +16,6 @@ describe('Footer', () => {
 
   it('displays the version number', () => {
     render(<Footer />)
-    expect(screen.getByText(/v0\.5/)).toBeInTheDocument()
+    expect(screen.getByText(/v0\.8/)).toBeInTheDocument()
   })
 })
